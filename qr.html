@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code - Voir EFMS sur Mobile</title>
+    <style>
+        body { 
+            background: #0b0d0e; 
+            color: #fff; 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            margin: 0; 
+            padding: 20px;
+        }
+        .qr-card { 
+            background: #1a1e22; 
+            padding: 3rem; 
+            border-radius: 20px; 
+            border: 2px solid #7ccf2b; 
+            text-align: center; 
+            box-shadow: 0 10px 40px rgba(124, 207, 43, 0.15);
+            max-width: 500px;
+        }
+        h1 { 
+            color: #7ccf2b; 
+            margin-top: 0; 
+            font-size: 1.8rem;
+        }
+        p { 
+            color: #b8bec6; 
+            margin-bottom: 2rem; 
+            line-height: 1.6; 
+        }
+        .qr-wrapper {
+            background: #fff;
+            padding: 15px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-bottom: 1.5rem;
+        }
+        img { 
+            display: block;
+        }
+        .controls { 
+            margin-bottom: 1.5rem; 
+            background: #111315;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #2a3038;
+        }
+        label {
+            font-size: 0.9rem;
+            color: #c0c0c0;
+            margin-right: 10px;
+        }
+        input { 
+            padding: 0.6rem; 
+            border-radius: 6px; 
+            border: 1px solid #7ccf2b; 
+            background: #0b0d0e; 
+            color: #fff; 
+            width: 80px; 
+            text-align: center; 
+            font-size: 1rem;
+            margin-right: 10px;
+        }
+        button { 
+            padding: 0.6rem 1.2rem; 
+            background: linear-gradient(135deg, #7ccf2b 0%, #5fa31f 100%);
+            color: #000; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: 700; 
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(124, 207, 43, 0.3);
+        }
+        .note { 
+            font-size: 0.85rem; 
+            color: #6b7280; 
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="qr-card">
+        <h1>Voir le site sur mobile</h1>
+        <p>1. Lancez le site avec <strong>Live Server</strong> (VS Code).<br>
+           2. Vérifiez que votre téléphone est sur le <strong>même Wi-Fi</strong>.<br>
+           3. Scannez le code avec l'appareil photo de votre téléphone.</p>
+        
+        <div class="controls">
+            <label for="port">Port Live Server :</label>
+            <input type="number" id="port" value="5500">
+            <button onclick="updateQR()">Mettre à jour</button>
+        </div>
+
+        <div class="qr-wrapper">
+            <img id="qrcode" src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=http://192.168.195.227:5500/index.html" alt="QR Code">
+        </div>
+        
+        <p class="note">Votre adresse IP locale détectée est : <strong>192.168.195.227</strong></p>
+    </div>
+
+    <script>
+        function updateQR() {
+            const port = document.getElementById('port').value || '5500';
+            const ip = '192.168.195.227';
+            const url = `http://${ip}:${port}/index.html`;
+            document.getElementById('qrcode').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(url)}`;
+        }
+    </script>
+
+</body>
+</html>
