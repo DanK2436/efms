@@ -150,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
             bodyText += `---------------------------------------------------------\n`;
             bodyText += `Ce document a été formaté automatiquement par le système EFMS.`;
 
-            const mailTo = "electronicfullmultiservice@gmail.com";
+            const mailTo = "electronifullmultiservice@outlook.com";
             let subject = `[EFMS] Dossier #DEV-${Math.floor(Math.random()*10000)} | ${nom} | ${service ? service.toUpperCase() : ''}`;
 
             // 5. Simulation de traitement et ouverture de la messagerie
