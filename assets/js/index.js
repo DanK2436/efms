@@ -153,25 +153,112 @@ document.addEventListener('DOMContentLoaded', () => {
             const mailTo = "electronifullmultiservice@outlook.com";
             let subject = `[EFMS] Dossier #DEV-${Math.floor(Math.random()*10000)} | ${nom} | ${service ? service.toUpperCase() : ''}`;
 
-            // 5. Simulation de traitement et ouverture de la messagerie
-            setTimeout(() => {
-                document.querySelector('.processing-text').innerHTML = 'Redirection vers votre messagerie sécurisée...<br><span style="font-size:0.8rem; color:var(--text-muted); font-weight:normal; margin-top:10px; display:block;">Cliquez sur "Envoyer" dans votre application mail pour finaliser.</span>';
-                document.querySelector('.progress-fill').style.background = 'var(--primary)';
+            // 5. Envoi au Backend Mode (Node JS)
+            setTimeout(async () => {
+                const stepText = document.querySelector('.processing-text');
+                const progressFill = document.querySelector('.progress-fill');
                 
-                setTimeout(() => {
-                    // C'est très important de tout encoder avec encodeURIComponent
-                    const link = `mailto:${mailTo}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
-                    window.location.href = link;
+                stepText.innerHTML = 'Enregistrement de la demande sur le serveur sécurisé...';
+                progressFill.style.background = 'var(--primary)';
+
+                try {
+                    const res = await fetch('http://localhost:3000/api/requests', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ nom, email, telephone, vehicule, service, message })
+                    });
                     
-                    // Fin du process
+                    if (!res.ok) throw new Error("Erreur serveur");
+                    
+                    stepText.innerHTML = '✅ Demande transmise avec succès ! Nous vous recontacterons sous peu.<br><span style="font-size:0.8rem; color:var(--text-muted); font-weight:normal; margin-top:10px; display:block;">Vous pouvez fermer cette fenêtre.</span>';
+                    
                     setTimeout(() => {
                         modal.classList.remove('active');
                         contactForm.reset();
-                    }, 3500);
-                }, 1500);
+                    }, 4000);
+
+                } catch (err) {
+                    console.error(err);
+                    stepText.innerHTML = '⚠️ Erreur de connexion au serveur. Redirection vers votre messagerie de secours...<br><span style="font-size:0.8rem; color:var(--text-muted); font-weight:normal; margin-top:10px; display:block;">Cliquez sur "Envoyer" dans votre application mail.</span>';
+                    
+                    setTimeout(() => {
+                        const link = `mailto:${mailTo}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
+                        window.location.href = link;
+                        
+                        setTimeout(() => {
+                            modal.classList.remove('active');
+                            contactForm.reset();
+                        }, 3500);
+                    }, 2000);
+                }
             }, 2500);
         });
     }
+
+    // ===== Announcements (Actualités) =====
+    const announcementsContainer = document.getElementById('announcements-list');
+    const loadAnnouncements = async () => {
+        if (!announcementsContainer) return;
+        try {
+            const res = await fetch('http://localhost:3000/api/annonces');
+            if (!res.ok) throw new Error("Erreur");
+            const annonces = await res.json();
+            
+            if (annonces.length === 0) {
+                announcementsContainer.innerHTML = '<div class="empty-state"><p>Aucune annonce pour le moment.</p></div>';
+                return;
+            }
+
+            announcementsContainer.innerHTML = '';
+            annonces.forEach(a => {
+                const card = document.createElement('div');
+                card.className = 'announcement-card';
+                card.setAttribute('data-reveal', '');
+                
+                let mediaHTML = '';
+                if (a.media_url) {
+                    if (a.media_type === 'video') {
+                        mediaHTML = `
+                        <div class="announcement-media">
+                            <video controls class="media-content">
+                                <source src="${a.media_url}" type="video/mp4">
+                                Votre navigateur ne supporte pas la vidéo.
+                            </video>
+                        </div>`;
+                    } else {
+                        mediaHTML = `
+                        <div class="announcement-media">
+                            <img src="${a.media_url}" alt="${a.titre}" class="media-content">
+                        </div>`;
+                    }
+                }
+
+                card.innerHTML = `
+                    <div class="announcement-content">
+                        <h3>${a.titre}</h3>
+                        <div class="announcement-date">${new Date(a.created_at).toLocaleDateString('fr-FR')}</div>
+                        <p>${a.contenu}</p>
+                    </div>
+                    ${mediaHTML}
+                `;
+                announcementsContainer.appendChild(card);
+            });
+            
+            // Re-trigger reveal for new elements
+            const newReveals = announcementsContainer.querySelectorAll('[data-reveal]');
+            newReveals.forEach(el => {
+                const rect = el.getBoundingClientRect();
+                if (rect.top < window.innerHeight - 80) el.classList.add('active');
+            });
+
+        } catch (err) {
+            console.error("Erreur chargement annonces:", err);
+            if (announcementsContainer) {
+                announcementsContainer.innerHTML = '<div class="empty-state"><p>Le service d\'annonces est momentanément indisponible.</p></div>';
+            }
+        }
+    };
+    loadAnnouncements();
 
     // ===== Mobile Menu =====
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');

@@ -44,32 +44,79 @@
 
     <footer>
         <div class="container footer-content">
-            <p>&copy; 2026 EFMS - Electronics Full Multi Service | Kolwezi, Lualaba, RDC | <a href="admin.html">Espace Admin</a></p>
+            <p>&copy; 2026 EFMS - Electronics Full Multi Service | Kolwezi, Lualaba, RDC | <a href="../admin/index.html">Espace Admin</a></p>
         </div>
     </footer>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             const listContainer = document.getElementById('announcementsList');
-            let annonces = JSON.parse(localStorage.getItem('efms_annonces')) || [];
+            const API_URL = 'http://localhost:3000/api';
 
-            if (annonces.length === 0) {
-                listContainer.innerHTML = '<div class="empty-state"><h3>Aucune annonce pour le moment</h3><p>Revenez bientôt pour découvrir nos dernières actualités et promotions.</p></div>';
-            } else {
-                annonces.sort((a, b) => new Date(b.date) - new Date(a.date));
-                annonces.forEach(annonce => {
-                    const dateObj = new Date(annonce.date);
-                    const formattedDate = dateObj.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-                    const card = document.createElement('div');
-                    card.className = 'announcement-card';
-                    card.setAttribute('data-reveal', '');
-                    card.innerHTML = `
-                        <h3>${annonce.titre}</h3>
-                        <div class="announcement-date">Publié le ${formattedDate}</div>
-                        <p>${annonce.contenu}</p>
-                    `;
-                    listContainer.appendChild(card);
-                });
+            try {
+                listContainer.innerHTML = '<p style="text-align:center;">Chargement des annonces...</p>';
+                const res = await fetch(`${API_URL}/annonces`);
+                if (!res.ok) throw new Error("Server Error");
+                let annonces = await res.json();
+                
+                listContainer.innerHTML = '';
+                if (annonces.length === 0) {
+                    listContainer.innerHTML = '<div class="empty-state"><h3>Aucune annonce pour le moment</h3><p>Revenez bientôt pour découvrir nos dernières actualités et promotions.</p></div>';
+                } else {
+                    annonces.forEach((annonce, i) => {
+                        const dateObj = new Date(annonce.created_at);
+                        const formattedDate = dateObj.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+                        
+                        const card = document.createElement('div');
+                        card.className = 'announcement-card';
+                        
+                        // Add animation delay based on index
+                        card.style.opacity = '0';
+                        card.style.transform = 'translateY(20px)';
+                        card.style.transition = 'all 0.6s ease';
+                        setTimeout(() => {
+                            card.style.opacity = '1';
+                            card.style.transform = 'translateY(0)';
+                        }, i * 100);
+
+                        let mediaHtml = '';
+                        if (annonce.media_url) {
+                            if (annonce.media_type === 'video') {
+                                mediaHtml = `
+                                    <div style="margin-top: 1rem; border-radius: 8px; overflow: hidden;">
+                                        <video src="${annonce.media_url}" controls style="width: 100%; max-height: 400px; display: block; background: #000;"></video>
+                                    </div>
+                                `;
+                            } else {
+                                mediaHtml = `
+                                    <div style="margin-top: 1rem; border-radius: 8px; overflow: hidden;">
+                                        <img src="${annonce.media_url}" alt="${annonce.titre}" style="width: 100%; max-height: 400px; object-fit: contain; display: block; border: 1px solid rgba(255,255,255,0.1);">
+                                    </div>
+                                `;
+                            }
+                        }
+
+                        card.innerHTML = `
+                            <div style="padding: 2rem;">
+                                <h3>${annonce.titre}</h3>
+                                <div class="announcement-date" style="color:var(--primary); font-size:0.9rem; margin-bottom:1rem; font-weight:bold;">Publié le ${formattedDate}</div>
+                                <p style="white-space: pre-wrap; line-height: 1.6;">${annonce.contenu}</p>
+                            </div>
+                            ${mediaHtml}
+                        `;
+                        // Remove default bottom padding if media exists
+                        if (annonce.media_url) {
+                            card.style.paddingBottom = "0";
+                            card.style.borderBottomLeftRadius = "0";
+                            card.style.borderBottomRightRadius = "0";
+                        }
+                        
+                        listContainer.appendChild(card);
+                    });
+                }
+            } catch (err) {
+                console.error(err);
+                listContainer.innerHTML = '<div class="empty-state" style="color:var(--danger)"><h3>Erreur Serveur</h3><p>Impossible de charger les annonces à partir du backend.</p></div>';
             }
         });
     </script>

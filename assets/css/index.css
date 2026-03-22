@@ -942,22 +942,77 @@ input:focus, select:focus, textarea:focus {
 input::placeholder, textarea::placeholder { color: var(--text-muted); }
 
 /* ===================== ANNOUNCEMENTS ===================== */
-.announcements-section { padding: 3rem 0; min-height: 50vh; }
+.announcements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+}
 
 .announcement-card {
     background: var(--card-bg);
     border: 1px solid var(--border-color);
-    padding: 2rem;
     border-radius: var(--radius);
-    margin-bottom: 1.5rem;
+    padding: 0; /* Remove padding for media to touch edges if needed, but we'll use inner padding */
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.announcement-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(124, 207, 43, 0.3);
+    box-shadow: var(--shadow-hover);
+}
+
+.announcement-content {
+    padding: 1.75rem;
+    flex: 1;
+}
+
+.announcement-content h3 {
+    color: var(--text-light);
+    margin-bottom: 0.5rem;
+    font-size: 1.25rem;
+}
+
+.announcement-date {
+    font-size: 0.82rem;
+    color: var(--primary);
+    font-weight: 600;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.announcement-content p {
+    color: var(--text-body);
+    font-size: 0.95rem;
+    line-height: 1.7;
+}
+
+.announcement-media {
+    width: 100%;
+    height: 220px;
+    background: #000;
+    overflow: hidden;
+    order: -1; /* Media at top */
+}
+
+.media-content {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
     transition: var(--transition);
 }
-.announcement-card:hover { border-color: rgba(124, 207, 43, 0.3); }
-.announcement-card h3 { color: var(--text-light); margin-bottom: 0.5rem; font-size: 1.2rem; }
-.announcement-date { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; }
-.announcement-card p { color: var(--text-body); }
+
+.announcement-card:hover .media-content {
+    transform: scale(1.05);
+}
 
 .empty-state {
+    grid-column: 1 / -1;
     text-align: center;
     color: var(--text-muted);
     padding: 4rem 2rem;
