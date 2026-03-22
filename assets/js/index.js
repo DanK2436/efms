@@ -153,45 +153,78 @@ document.addEventListener('DOMContentLoaded', () => {
             const mailTo = "electronifullmultiservice@outlook.com";
             let subject = `[EFMS] Dossier #DEV-${Math.floor(Math.random()*10000)} | ${nom} | ${service ? service.toUpperCase() : ''}`;
 
-            // 5. Envoi au Backend Mode (Node JS)
+            // 5. Envoi - Mode Hybride (Backend ou Direct Supabase)
             setTimeout(async () => {
                 const stepText = document.querySelector('.processing-text');
                 const progressFill = document.querySelector('.progress-fill');
                 
-                stepText.innerHTML = 'Enregistrement de la demande sur le serveur sécurisé...';
+                stepText.innerHTML = 'Enregistrement de la demande sur les serveurs sécurisés...';
                 progressFill.style.background = 'var(--primary)';
 
+                const payload = { nom, email, telephone, vehicule, service, message, created_at: new Date().toISOString() };
+
+                // Tentative 1 : Backend Local (Node.js)
                 try {
                     const res = await fetch('http://localhost:3000/api/requests', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ nom, email, telephone, vehicule, service, message })
+                        body: JSON.stringify(payload)
                     });
                     
-                    if (!res.ok) throw new Error("Erreur serveur");
+                    if (res.ok) {
+                        handleSuccess(stepText);
+                        return;
+                    }
+                    throw new Error("Backend non disponible");
+                } catch (err) {
+                    console.log("Backend local non détecté, tentative via Cloud Direct...");
                     
-                    stepText.innerHTML = '✅ Demande transmise avec succès ! Nous vous recontacterons sous peu.<br><span style="font-size:0.8rem; color:var(--text-muted); font-weight:normal; margin-top:10px; display:block;">Vous pouvez fermer cette fenêtre.</span>';
-                    
+                    // Tentative 2 : Direct Supabase (Backup robuste si le site est hébergé sans backend)
+                    try {
+                        const sbUrl = 'https://fgjbcvczxrzkffeqfndk.supabase.co/rest/v1/requests';
+                        const sbKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZnamJjdmN6eHJ6a2ZmZXFmbmRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxODQ3MjUsImV4cCI6MjA4OTc2MDcyNX0.uFqvuAzxIz3eznxdx4biwFjNSfvPvehJ8LOAlSelgbM';
+                        
+                        const res = await fetch(sbUrl, {
+                            method: 'POST',
+                            headers: {
+                                'apikey': sbKey,
+                                'Authorization': `Bearer ${sbKey}`,
+                                'Content-Type': 'application/json',
+                                'Prefer': 'return=minimal'
+                            },
+                            body: JSON.stringify(payload)
+                        });
+
+                        if (res.ok) {
+                            handleSuccess(stepText);
+                        } else {
+                            throw new Error("Erreur Cloud");
+                        }
+                    } catch (finalErr) {
+                        handleError(stepText, mailTo, subject, bodyText);
+                    }
+                }
+            }, 2500);
+
+            function handleSuccess(stepText) {
+                stepText.innerHTML = '✅ Demande transmise avec succès ! Nous vous recontacterons sous peu.<br><span style="font-size:0.8rem; color:var(--text-muted); font-weight:normal; margin-top:10px; display:block;">Vous pouvez fermer cette fenêtre.</span>';
+                setTimeout(() => {
+                    modal.classList.remove('active');
+                    contactForm.reset();
+                }, 4000);
+            }
+
+            function handleError(stepText, mailTo, subject, bodyText) {
+                stepText.innerHTML = '⚠️ Erreur réseau. Redirection vers votre messagerie de secours...<br><span style="font-size:0.8rem; color:var(--text-muted); font-weight:normal; margin-top:10px; display:block;">Cliquez sur "Envoyer" dans votre application mail.</span>';
+                setTimeout(() => {
+                    const link = `mailto:${mailTo}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
+                    window.location.href = link;
                     setTimeout(() => {
                         modal.classList.remove('active');
                         contactForm.reset();
-                    }, 4000);
-
-                } catch (err) {
-                    console.error(err);
-                    stepText.innerHTML = '⚠️ Erreur de connexion au serveur. Redirection vers votre messagerie de secours...<br><span style="font-size:0.8rem; color:var(--text-muted); font-weight:normal; margin-top:10px; display:block;">Cliquez sur "Envoyer" dans votre application mail.</span>';
-                    
-                    setTimeout(() => {
-                        const link = `mailto:${mailTo}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
-                        window.location.href = link;
-                        
-                        setTimeout(() => {
-                            modal.classList.remove('active');
-                            contactForm.reset();
-                        }, 3500);
-                    }, 2000);
-                }
-            }, 2500);
+                    }, 3500);
+                }, 2000);
+            }
         });
     }
 

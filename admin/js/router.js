@@ -233,6 +233,7 @@ const Admin = {
                         `<img src="${a.media_url}" style="width:60px; height:45px; object-fit:cover; border-radius:4px; margin-right:15px; border:1px solid rgba(255,255,255,0.1);">`) : 
                     '<div style="width:60px; height:45px; background:rgba(255,255,255,0.05); border-radius:4px; margin-right:15px;"></div>';
 
+                const dateStr = new Date(a.created_at).toLocaleDateString();
                 div.innerHTML = `
                     <div style="display:flex; align-items:center;">
                         ${mediaPreview}
