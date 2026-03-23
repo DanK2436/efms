@@ -1,35 +1,34 @@
-const API_URL = 'http://localhost:3000/api';
+// CONFIGURATION SUPABASE
+const SUPABASE_URL = 'https://fgjbcvczxrzkffeqfndk.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZnamJjdmN6eHJ6a2ZmZXFmbmRrIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NDE4NDcyNSwiZXhwIjoyMDg5NzYwNzI1fQ.UiAriYMyR449hHmoTu3OJMkwvCrt_QbEqs7FWU0IZ7w';
+
 const appContainer = document.getElementById('app-container');
 const subtitle = document.getElementById('admin-subtitle');
 const nav = document.getElementById('admin-nav');
 
-// --- TÃ‰MPLATES DES VUES ---
+// --- TEMPLATES DES VUES ---
 const Views = {
     Login: `
         <div class="login-wrapper fade-in">
             <div class="glow-orb orb-1"></div>
             <div class="glow-orb orb-2"></div>
-            
             <div class="login-box card-3d">
                 <div class="card-edge-highlight"></div>
-                
                 <div class="login-content">
                     <div class="logo-3d">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" /></svg>
                     </div>
                     <h2 class="title-3d">EFMS Portal</h2>
-                    <p class="subtitle-3d">AccÃ¨s SÃ©curisÃ©</p>
-                    
+                    <p class="subtitle-3d">Accès Sécurisé (Supabase)</p>
                     <div id="auth-error" class="auth-error">Identifiants incorrects</div>
-                    
                     <form id="login-form">
                         <div class="form-group input-3d-group">
                             <label for="username">Identifiant</label>
-                            <input type="email" id="username" placeholder="votre@email.com" required autocomplete="email">
+                            <input type="email" id="username" placeholder="admin@efms.outlook.com" required>
                         </div>
                         <div class="form-group input-3d-group">
                             <label for="password">Mot de passe</label>
-                            <input type="password" id="password" placeholder="Mot de passe" required autocomplete="current-password">
+                            <input type="password" id="password" placeholder="••••••••" required>
                         </div>
                         <button type="submit" class="btn btn-primary w-100 btn-3d" id="login-btn">Initialiser la session</button>
                     </form>
@@ -43,39 +42,34 @@ const Views = {
                 <button class="tab-btn active" id="tab-annonces" onclick="Admin.switchTab('annonces')">Gestion des Annonces</button>
                 <button class="tab-btn" id="tab-demandes" onclick="Admin.switchTab('demandes')">Demandes Clients</button>
             </div>
-
-            <!-- TAB ANNONCES -->
             <div id="section-annonces">
                 <div class="admin-panel" style="margin-bottom:2.5rem;">
                     <h3>Publier une nouvelle annonce</h3>
-                    <form id="adminForm" enctype="multipart/form-data">
+                    <form id="adminForm">
                         <div class="form-group">
                             <label for="titre">Titre de l'annonce</label>
-                            <input type="text" id="titre" placeholder="Ex: Promotion -20% sur les reprogrammations ECU" required>
+                            <input type="text" id="titre" placeholder="Ex: Promotion -20%..." required>
                         </div>
                         <div class="form-group">
                             <label for="contenu">Contenu de l'annonce</label>
-                            <textarea id="contenu" placeholder="RÃ©digez le contenu dÃ©taillÃ© de votre annonce..." rows="4" required></textarea>
+                            <textarea id="contenu" placeholder="Détails..." rows="4" required></textarea>
                         </div>
                         <div class="form-group">
-                            <label for="media">Importer une vidÃ©o ou image (Optionnel)</label>
-                            <input type="file" id="media" name="media" accept="image/*,video/*" style="border:1px solid #333; padding: 0.5rem; width: 100%; border-radius:4px; background:rgba(255,255,255,0.05);">
+                            <label for="media">Importer une image (Optionnel)</label>
+                            <input type="file" id="media" accept="image/*" style="border:1px solid #333; padding: 0.5rem; width: 100%; border-radius:4px; background:rgba(255,255,255,0.05);">
                         </div>
                         <button type="submit" class="btn btn-primary" id="btn-publier">Publier l'annonce</button>
                         <div id="admin-feedback" style="margin-top:1rem; font-weight:bold;"></div>
                     </form>
                 </div>
-
                 <div class="admin-list">
-                    <h3>Annonces publiÃ©es</h3>
+                    <h3>Annonces publiées</h3>
                     <div id="adminList" style="margin-top:1.5rem;"></div>
                 </div>
             </div>
-
-            <!-- TAB DEMANDES -->
             <div id="section-demandes" style="display:none;">
                 <div class="admin-list">
-                    <h3>Demandes de Devis ReÃ§ues</h3>
+                    <h3>Demandes de Devis Reçues</h3>
                     <div id="requestsList" style="margin-top:1.5rem;"></div>
                 </div>
             </div>
@@ -85,13 +79,11 @@ const Views = {
 
 // --- ROUTAGE & AUTHENTIFICATION ---
 const Router = {
-    getToken: () => localStorage.getItem('efms_admin_token'),
-    setToken: (token) => localStorage.setItem('efms_admin_token', token),
-    removeToken: () => localStorage.removeItem('efms_admin_token'),
+    isLoggedIn: () => localStorage.getItem('efms_logged_in') === 'true',
+    setLogin: (status) => localStorage.setItem('efms_logged_in', status),
 
     navigate: () => {
-        const token = Router.getToken();
-        if (token) {
+        if (Router.isLoggedIn()) {
             Router.renderDashboard();
         } else {
             Router.renderLogin();
@@ -100,7 +92,7 @@ const Router = {
 
     renderLogin: () => {
         document.body.classList.add('login-mode');
-        subtitle.textContent = "Veuillez vous authentifier pour accÃ©der au portail.";
+        subtitle.textContent = "Veuillez vous authentifier pour accéder au portail.";
         nav.style.display = 'none';
         appContainer.innerHTML = Views.Login;
         
@@ -111,22 +103,22 @@ const Router = {
             const btn = document.getElementById('login-btn');
             const err = document.getElementById('auth-error');
             
-            err.style.display = 'none';
-            btn.textContent = 'Connexion...';
+            btn.textContent = 'Vérification...';
             btn.disabled = true;
 
             try {
-                const res = await fetch(`${API_URL}/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: u, password: p })
+                // Vérification manuelle dans la table users (selon votre script SQL)
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/users?email=eq.${u}&password=eq.${p}`, {
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
                 });
+                const users = await res.json();
 
-                if (!res.ok) throw new Error('Bad credentials');
-                
-                const data = await res.json();
-                Router.setToken(data.token);
-                Router.navigate(); // load dashboard
+                if (users.length > 0) {
+                    Router.setLogin('true');
+                    Router.navigate();
+                } else {
+                    throw new Error('Identifiants incorrects');
+                }
             } catch (error) {
                 err.style.display = 'block';
                 btn.textContent = 'Se Connecter';
@@ -137,27 +129,23 @@ const Router = {
 
     renderDashboard: () => {
         document.body.classList.remove('login-mode');
-        subtitle.textContent = "GÃ©rez les annonces et consultez les demandes des clients.";
+        subtitle.textContent = "Gérez les annonces et consultez les demandes des clients (Supabase).";
         nav.style.display = 'flex';
         appContainer.innerHTML = Views.Dashboard;
-        
-        // Initialize Admin Logic
         Admin.init();
     }
 };
 
-// --- LOGIQUE ADMIN (Tableau de bord) ---
+// --- LOGIQUE ADMIN ---
 const Admin = {
     init: () => {
         document.getElementById('nav-logout').addEventListener('click', (e) => {
             e.preventDefault();
-            Router.removeToken();
+            Router.setLogin('false');
             Router.navigate();
         });
 
-        const form = document.getElementById('adminForm');
-        form.addEventListener('submit', Admin.publishAnnonce);
-
+        document.getElementById('adminForm').addEventListener('submit', Admin.publishAnnonce);
         Admin.loadAnnonces();
     },
 
@@ -168,194 +156,113 @@ const Admin = {
         const sDemandes = document.getElementById('section-demandes');
 
         if (tab === 'annonces') {
-            tAnnonces.classList.add('active');
-            tDemandes.classList.remove('active');
-            sAnnonces.style.display = 'block';
-            sDemandes.style.display = 'none';
+            tAnnonces.classList.add('active'); tDemandes.classList.remove('active');
+            sAnnonces.style.display = 'block'; sDemandes.style.display = 'none';
             Admin.loadAnnonces();
         } else {
-            tDemandes.classList.add('active');
-            tAnnonces.classList.remove('active');
-            sDemandes.style.display = 'block';
-            sAnnonces.style.display = 'none';
+            tDemandes.classList.add('active'); tAnnonces.classList.remove('active');
+            sDemandes.style.display = 'block'; sAnnonces.style.display = 'none';
             Admin.loadRequests();
         }
     },
 
-    // A helper to make authorized fetch requests
-    authFetch: async (endpoint, options = {}) => {
-        const token = Router.getToken();
-        if (!options.headers) options.headers = {};
-        
-        // Do not set Content-Type if it's FormData, let the browser handle boundaries
-        if (!(options.body instanceof FormData)) {
-            if (!options.headers['Content-Type']) {
-                options.headers['Content-Type'] = 'application/json';
-            }
-        }
-
-        options.headers['Authorization'] = `Bearer ${token}`;
-
-        const res = await fetch(`${API_URL}${endpoint}`, options);
-        if (res.status === 401) {
-            Router.removeToken();
-            Router.navigate();
-            throw new Error("Session expirÃ©e");
-        }
-        return res;
-    },
-
     loadAnnonces: async () => {
         const list = document.getElementById('adminList');
-        list.innerHTML = '<p>Chargement des annonces...</p>';
+        list.innerHTML = '<p>Chargement...</p>';
         try {
-            const res = await fetch(`${API_URL}/annonces`);
-            if (!res.ok) throw new Error("Erreur serveur");
-            const annonces = await res.json();
-            
-            list.innerHTML = '';
-            if (annonces.length === 0) {
-                list.innerHTML = '<div style="color:var(--text-muted)">Aucune annonce publiÃ©e.</div>';
-                return;
-            }
-            
-            annonces.forEach(a => {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/annonces?select=*&order=created_at.desc`, {
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+            });
+            const data = await res.json();
+            list.innerHTML = data.length === 0 ? '<div>Aucune annonce.</div>' : '';
+            data.forEach(a => {
                 const div = document.createElement('div');
                 div.className = 'admin-item glass-panel';
-                div.style.display = "flex";
-                div.style.justifyContent = "space-between";
-                div.style.alignItems = "center";
-                div.style.marginBottom = "1.5rem";
-
-                const mediaPreview = a.media_url ? 
-                    (a.media_type === 'video' ? 
-                        `<div style="width:60px; height:45px; background:#000; border-radius:4px; margin-right:15px; display:flex; align-items:center; justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="var(--primary)"><path d="M8 5v14l11-7z"/></svg></div>` : 
-                        `<img src="${a.media_url}" style="width:60px; height:45px; object-fit:cover; border-radius:4px; margin-right:15px; border:1px solid rgba(255,255,255,0.1);">`) : 
-                    '<div style="width:60px; height:45px; background:rgba(255,255,255,0.05); border-radius:4px; margin-right:15px;"></div>';
-
-                const dateStr = new Date(a.created_at).toLocaleDateString();
+                div.style.display = "flex"; div.style.justifyContent = "space-between"; div.style.marginBottom = "1rem";
                 div.innerHTML = `
-                    <div style="display:flex; align-items:center;">
-                        ${mediaPreview}
-                        <div>
-                            <h4 style="margin:0; color:var(--text)">${a.titre}</h4>
-                            <div style="color:var(--primary); font-size:0.85rem; margin-top:0.3rem;">${dateStr}</div>
-                        </div>
+                    <div>
+                        <h4 style="margin:0;">${a.titre}</h4>
+                        <small style="color:var(--primary)">${new Date(a.created_at).toLocaleDateString()}</small>
                     </div>
-                    <button class="btn btn-danger btn-sm" onclick="Admin.deleteAnnonce('${a.id}')">Supprimer</button>
+                    <button class="btn btn-danger btn-sm" onclick="Admin.deleteItem('annonces', '${a.id}')">Supprimer</button>
                 `;
                 list.appendChild(div);
             });
-        } catch (err) {
-            list.innerHTML = '<div style="color:var(--danger)">Serveur inaccessible. API Node Ã©teinte ?</div>';
-        }
+        } catch (e) { list.innerHTML = 'Erreur de chargement.'; }
     },
 
     publishAnnonce: async (e) => {
         e.preventDefault();
         const btn = document.getElementById('btn-publier');
         const fb = document.getElementById('admin-feedback');
-        btn.textContent = 'Envoi...';
-        btn.disabled = true;
+        btn.disabled = true; btn.textContent = 'Envoi...';
 
-        const formData = new FormData();
-        formData.append('titre', document.getElementById('titre').value);
-        formData.append('contenu', document.getElementById('contenu').value);
-        
-        const media = document.getElementById('media').files[0];
-        if (media) formData.append('media', media);
+        const titre = document.getElementById('titre').value;
+        const contenu = document.getElementById('contenu').value;
+        const file = document.getElementById('media').files[0];
+        let mediaUrl = null;
 
         try {
-            const res = await Admin.authFetch('/annonces', {
+            if (file) {
+                const fileName = `${Date.now()}_${file.name}`;
+                const uploadRes = await fetch(`${SUPABASE_URL}/storage/v1/object/annonces-media/${fileName}`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${SUPABASE_KEY}`, 'apikey': SUPABASE_KEY },
+                    body: file
+                });
+                if (uploadRes.ok) mediaUrl = `${SUPABASE_URL}/storage/v1/object/public/annonces-media/${fileName}`;
+            }
+
+            await fetch(`${SUPABASE_URL}/rest/v1/annonces`, {
                 method: 'POST',
-                body: formData
+                headers: { 
+                    'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`,
+                    'Content-Type': 'application/json', 'Prefer': 'return=minimal' 
+                },
+                body: JSON.stringify({ titre, contenu, media_url: mediaUrl, media_type: file ? 'image' : null })
             });
 
-            if (!res.ok) throw new Error("Erreur crÃ©ation");
-
-            fb.textContent = "âœ… Annonce publiÃ©e !";
-            fb.style.color = "var(--primary)";
+            fb.textContent = "Annonce publiée !"; fb.style.color = "var(--primary)";
             document.getElementById('adminForm').reset();
             Admin.loadAnnonces();
-        } catch (err) {
-            if(err.message !== "Session expirÃ©e") {
-                fb.textContent = "âŒ Echec (VÃ©rifiez le serveur / la BDD)";
-                fb.style.color = "var(--danger)";
-            }
-        } finally {
-            btn.textContent = "Publier l'annonce";
-            btn.disabled = false;
-        }
-    },
-
-    deleteAnnonce: async (id) => {
-        if(!confirm("Supprimer l'annonce dÃ©finitivement ?")) return;
-        try {
-            await Admin.authFetch(`/annonces/${id}`, { method: 'DELETE' });
-            Admin.loadAnnonces();
-        } catch (err) {
-            console.error(err);
-        }
+        } catch (e) { fb.textContent = "Erreur de publication."; fb.style.color = "var(--danger)"; }
+        btn.disabled = false; btn.textContent = 'Publier l\'annonce';
     },
 
     loadRequests: async () => {
         const list = document.getElementById('requestsList');
-        list.innerHTML = '<p>Chargement des requÃªtes...</p>';
+        list.innerHTML = '<p>Chargement...</p>';
         try {
-            const res = await Admin.authFetch('/requests');
-            const reqs = await res.json();
-
-            list.innerHTML = '';
-            if (reqs.length === 0) {
-                list.innerHTML = '<div style="color:var(--text-muted)">Aucune demande pour le moment.</div>';
-                return;
-            }
-
-            reqs.forEach(r => {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/requests?select=*&order=created_at.desc`, {
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+            });
+            const data = await res.json();
+            list.innerHTML = data.length === 0 ? '<div>Aucune demande.</div>' : '';
+            data.forEach(r => {
                 const div = document.createElement('div');
                 div.className = 'admin-item glass-panel';
-                div.style.marginBottom = '1.5rem';
-                div.style.borderLeft = '4px solid var(--primary)';
-                
+                div.style.marginBottom = '1rem'; div.style.borderLeft = '4px solid var(--primary)';
                 div.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem;">
-                        <div>
-                            <h4 style="margin:0; color:var(--text);">${r.nom}</h4>
-                            <small style="color:var(--primary); font-weight:bold;">${r.service ? r.service.toUpperCase() : 'Non spÃ©cifiÃ©'} - ${r.vehicule || 'N/A'}</small>
-                        </div>
-                        <div style="text-align:right;">
-                            <small style="color:var(--text-muted)">${new Date(r.created_at).toLocaleDateString()}</small><br>
-                            <button class="btn btn-danger btn-sm" style="margin-top:0.5rem; padding: 0.3rem 0.6rem; font-size:0.8rem;" onclick="Admin.deleteRequest('${r.id}')">Archiver</button>
-                        </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <h4>${r.nom} <small>(${r.service || 'Devis'})</small></h4>
+                        <button class="btn btn-danger btn-sm" onclick="Admin.deleteItem('requests', '${r.id}')">Archiver</button>
                     </div>
-                    <div style="display:flex; gap:1.5rem; font-size:0.9rem; margin-bottom:1rem; flex-wrap:wrap;">
-                        <span>ðŸ“§ <a href="mailto:${r.email}" style="color:var(--text)">${r.email}</a></span>
-                        <span>ðŸ“ž <a href="tel:${r.telephone}" style="color:var(--text)">${r.telephone || 'N/A'}</a></span>
-                    </div>
-                    <div style="background:rgba(255,255,255,0.05); padding:1rem; border-radius:4px; font-size:0.95rem; line-height:1.5;">
-                        ${r.message}
-                    </div>
+                    <p style="font-size:0.9rem; margin:10px 0;">${r.message}</p>
+                    <small>${r.email} | ${r.telephone || 'N/A'}</small>
                 `;
                 list.appendChild(div);
             });
-
-        } catch (err) {
-            list.innerHTML = '<div style="color:var(--danger)">Serveur inaccessible ou vous devez Ãªtre reconnectÃ©.</div>';
-        }
+        } catch (e) { list.innerHTML = 'Erreur de chargement.'; }
     },
 
-    deleteRequest: async (id) => {
-        if(!confirm("Archiver et supprimer cette demande ?")) return;
-        try {
-            await Admin.authFetch(`/requests/${id}`, { method: 'DELETE' });
-            Admin.loadRequests();
-        } catch (err) {
-            console.error(err);
-        }
+    deleteItem: async (table, id) => {
+        if (!confirm("Confirmer la suppression ?")) return;
+        await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
+            method: 'DELETE',
+            headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+        });
+        table === 'annonces' ? Admin.loadAnnonces() : Admin.loadRequests();
     }
 };
 
-// Bootstrap application
-document.addEventListener('DOMContentLoaded', () => {
-    Router.navigate();
-});
+document.addEventListener('DOMContentLoaded', () => Router.navigate());
