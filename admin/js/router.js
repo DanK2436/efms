@@ -562,15 +562,19 @@ const Admin = {
     },
 
     replyVia: (client, email, nom, id) => {
-        const subject = encodeURIComponent(`Réponse EFMS - Devis ${id.substring(0,8)}`);
-        const body = encodeURIComponent(`Bonjour ${nom},\n\nNous avons bien reçu votre demande sur notre site EFMS.\n\n[Votre réponse ici]\n\nCordialement,\nL'équipe EFMS`);
+        const subject = encodeURIComponent(`Réponse EFMS - Devis #${id.substring(0,8).toUpperCase()}`);
+        
+        let senderEmail = client === 'gmail' ? 'electronicfullmultiservice@gmail.com' : 'electronicfullmultiservice@outlook.com';
+        const body = encodeURIComponent(`Bonjour ${nom},\n\nNous avons bien reçu votre demande sur notre site EFMS.\n\n[Votre réponse ici]\n\nCordialement,\nL'équipe EFMS\nExpéditeur : ${senderEmail}`);
         
         Admin.toggleReplyMenu(id); // Fermer le menu après le clic
         
         let url = '';
         if (client === 'gmail') {
-            url = `https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${subject}&body=${body}`;
+            // Utilise authuser pour forcer l'usage du bon compte si plusieurs comptes Gmail sont connectés
+            url = `https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${subject}&body=${body}&authuser=${senderEmail}`;
         } else if (client === 'outlook') {
+            // Outlook s'ouvrira avec le compte MS actuellement connecté
             url = `https://outlook.live.com/mail/0/deeplink/compose?to=${email}&subject=${subject}&body=${body}`;
         }
         
