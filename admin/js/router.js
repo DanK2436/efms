@@ -501,8 +501,9 @@ const Admin = {
                                         Répondre
                                     </button>
                                     <div id="reply-menu-${r.id}" class="fade-in" style="display:none; position:absolute; bottom:100%; left:0; width:100%; margin-bottom:12px; background:#1a1e22; border:1px solid var(--neon-green); border-radius:12px; padding:12px; z-index:100; box-shadow:0 -10px 40px rgba(0,0,0,0.8);">
-                                        <button onclick="Admin.replyVia('gmail', '${r.email}', '${r.nom}', '${r.id}')" style="display:block; width:100%; text-align:center; background:rgba(234, 67, 53, 0.15); border:1px solid rgba(234, 67, 53, 0.5); color:#fff; padding:12px; border-radius:8px; margin-bottom:8px; cursor:pointer; font-weight:700; font-size:0.95rem; text-transform:uppercase; transition:all 0.3s ease;">Ouvrir Gmail</button>
-                                        <button onclick="Admin.replyVia('outlook', '${r.email}', '${r.nom}', '${r.id}')" style="display:block; width:100%; text-align:center; background:rgba(0, 114, 198, 0.15); border:1px solid rgba(0, 114, 198, 0.5); color:#fff; padding:12px; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.95rem; text-transform:uppercase; transition:all 0.3s ease;">Ouvrir Outlook</button>
+                                        <button onclick="Admin.replyVia('app', '${r.email}', '${r.nom}', '${r.id}')" style="display:block; width:100%; text-align:center; background:rgba(255, 255, 255, 0.1); border:1px solid rgba(255, 255, 255, 0.3); color:#fff; padding:12px; border-radius:8px; margin-bottom:8px; cursor:pointer; font-weight:700; font-size:0.95rem; text-transform:uppercase; transition:all 0.3s ease;">App Mail (Système)</button>
+                                        <button onclick="Admin.replyVia('gmail', '${r.email}', '${r.nom}', '${r.id}')" style="display:block; width:100%; text-align:center; background:rgba(234, 67, 53, 0.15); border:1px solid rgba(234, 67, 53, 0.5); color:#fff; padding:12px; border-radius:8px; margin-bottom:8px; cursor:pointer; font-weight:700; font-size:0.95rem; text-transform:uppercase; transition:all 0.3s ease;">Ouvrir Gmail (Web)</button>
+                                        <button onclick="Admin.replyVia('outlook', '${r.email}', '${r.nom}', '${r.id}')" style="display:block; width:100%; text-align:center; background:rgba(0, 114, 198, 0.15); border:1px solid rgba(0, 114, 198, 0.5); color:#fff; padding:12px; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.95rem; text-transform:uppercase; transition:all 0.3s ease;">Ouvrir Outlook (Web)</button>
                                     </div>
                                 </div>
                                 
@@ -564,21 +565,25 @@ const Admin = {
     replyVia: (client, email, nom, id) => {
         const subject = encodeURIComponent(`Réponse EFMS - Devis #${id.substring(0,8).toUpperCase()}`);
         
-        let senderEmail = client === 'gmail' ? 'electronicfullmultiservice@gmail.com' : 'electronicfullmultiservice@outlook.com';
+        let senderEmail = 'electronicfullmultiservice@gmail.com';
+        if (client === 'outlook') senderEmail = 'electronicfullmultiservice@outlook.com';
+        else if (client === 'app') senderEmail = 'electronicfullmultiservice@gmail.com (ou default)';
+
         const body = encodeURIComponent(`Bonjour ${nom},\n\nNous avons bien reçu votre demande sur notre site EFMS.\n\n[Votre réponse ici]\n\nCordialement,\nL'équipe EFMS\nExpéditeur : ${senderEmail}`);
         
         Admin.toggleReplyMenu(id); // Fermer le menu après le clic
         
         let url = '';
         if (client === 'gmail') {
-            // Utilise authuser pour forcer l'usage du bon compte si plusieurs comptes Gmail sont connectés
-            url = `https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${subject}&body=${body}&authuser=${senderEmail}`;
+            url = `https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${subject}&body=${body}&authuser=electronicfullmultiservice@gmail.com`;
+            window.open(url, '_blank');
         } else if (client === 'outlook') {
-            // Outlook s'ouvrira avec le compte MS actuellement connecté
             url = `https://outlook.live.com/mail/0/deeplink/compose?to=${email}&subject=${subject}&body=${body}`;
+            window.open(url, '_blank');
+        } else if (client === 'app') {
+            url = `mailto:${email}?subject=${subject}&body=${body}`;
+            window.location.href = url; // Permet au navigateur de demander nativement d'ouvrir l'application !
         }
-        
-        window.open(url, '_blank');
     },
 
     deleteItem: async (table, id) => {
