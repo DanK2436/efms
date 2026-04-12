@@ -30,7 +30,7 @@ const Views = {
                             <label>Mot de passe</label>
                             <div style="position:relative;">
                                 <input type="password" id="password" placeholder="********" required style="padding-right: 80px;">
-                                <button type="button" id="togglePassword" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:rgba(124, 207, 43, 0.1); border:1px solid var(--neon-green); color:var(--neon-green); padding:5px 10px; border-radius:8px; cursor:pointer; font-size:0.7rem; font-weight:800; z-index:10; transition:all 0.3s ease;">VOIR</button>
+                                <button type="button" id="togglePassword" onclick="Admin.togglePassword()" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:rgba(124, 207, 43, 0.1); border:1px solid var(--neon-green); color:var(--neon-green); padding:5px 10px; border-radius:8px; cursor:pointer; font-size:0.7rem; font-weight:800; z-index:10; transition:all 0.3s ease;">VOIR</button>
                             </div>
                         </div>
                         <button type="submit" class="btn btn-primary w-100 btn-3d" id="login-btn">Se Connecter</button>
@@ -193,19 +193,6 @@ const Router = {
     renderLogin: () => {
         document.body.classList.add('login-mode');
         appContainer.innerHTML = Views.Login;
-        
-        // Password Toggle Logic
-        const toggleBtn = document.getElementById('togglePassword');
-        const passInput = document.getElementById('password');
-        if (toggleBtn && passInput) {
-            toggleBtn.addEventListener('click', () => {
-                const isPass = passInput.type === 'password';
-                passInput.type = isPass ? 'text' : 'password';
-                toggleBtn.textContent = isPass ? 'MASQUER' : 'VOIR';
-                toggleBtn.style.background = isPass ? 'var(--neon-green)' : 'rgba(124, 207, 43, 0.1)';
-                toggleBtn.style.color = isPass ? '#000' : 'var(--neon-green)';
-            });
-        }
         
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -552,6 +539,18 @@ const Admin = {
     logout: () => {
         Router.setLogin('false');
         window.location.reload();
+    },
+
+    togglePassword: () => {
+        const passInput = document.getElementById('password');
+        const toggleBtn = document.getElementById('togglePassword');
+        if (passInput && toggleBtn) {
+            const isPass = passInput.type === 'password';
+            passInput.type = isPass ? 'text' : 'password';
+            toggleBtn.textContent = isPass ? 'MASQUER' : 'VOIR';
+            toggleBtn.style.background = isPass ? 'var(--neon-green)' : 'rgba(124, 207, 43, 0.1)';
+            toggleBtn.style.color = isPass ? '#000' : 'var(--neon-green)';
+        }
     },
 
     toggleMobileMenu: () => {
