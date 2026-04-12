@@ -357,7 +357,7 @@ body.login-mode .login-wrapper {
 .admin-main {
     flex-grow: 1;
     margin-left: 280px;
-    padding: 5rem 4rem 4rem 4rem; /* Increased top padding */
+    padding: 8rem 4rem 4rem 4rem; /* Significantly increased top padding */
     min-height: 100vh;
     width: calc(100% - 280px);
     box-sizing: border-box;

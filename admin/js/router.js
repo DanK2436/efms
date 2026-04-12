@@ -72,19 +72,17 @@ const Views = {
                         </a>
                     </li>
                 </ul>
-                <div class="sidebar-footer">
-                    <a class="sidebar-link" style="color:var(--danger)" onclick="Admin.logout()">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
-                        <span>Déconnexion</span>
-                    </a>
-                </div>
+                </ul>
             </aside>
             <main class="admin-main">
                 <header class="admin-header">
                     <h2 id="page-title">Tableau de <span>Bord</span></h2>
-                    <div class="user-profile" style="display:flex; align-items:center; gap:10px;">
-                        <span style="font-size:0.9rem; color:var(--text-muted)">Connecté en tant que <strong>Guelord Kasumpa</strong></span>
-                        <div style="width:35px; height:35px; background:var(--neon-green); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#000; font-weight:800;">GK</div>
+                    <div class="user-actions" style="display:flex; align-items:center; gap:20px;">
+                        <div class="user-profile" style="display:flex; align-items:center; gap:10px;">
+                            <span style="font-size:0.9rem; color:var(--text-muted)"><strong>Guelord Kasumpa</strong></span>
+                            <div style="width:35px; height:35px; background:var(--neon-green); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#000; font-weight:800;">GK</div>
+                        </div>
+                        <button onclick="Admin.logout()" class="btn btn-danger btn-sm" style="padding: 0.5rem 1rem; border-radius: 8px; font-weight:700;">Déconnexion</button>
                     </div>
                 </header>
                 <div id="tab-content">${content}</div>
@@ -122,7 +120,7 @@ const Views = {
         </div>
     `,
     Annonces: `
-        <div style="display:flex; justify-content:flex-start; margin-bottom:2rem;">
+        <div style="display:flex; justify-content:flex-start; margin-bottom:3rem; margin-top:1rem;">
             <button class="btn btn-primary" onclick="Admin.toggleAnnonceForm()" style="padding: 0.8rem 1.5rem; font-size: 0.9rem;">
                 + Ajouter une nouvelle annonce
             </button>
