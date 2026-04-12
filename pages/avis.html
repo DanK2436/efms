@@ -117,6 +117,9 @@
                 <li><a href="contact.html">Contact</a></li>
             </ul>
             <a href="contact.html" class="btn btn-primary nav-cta">Devis Gratuit</a>
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu principal" title="Ouvrir le menu">
+                <span></span><span></span><span></span>
+            </button>
         </nav>
     </header>
 
@@ -153,6 +156,9 @@
                 </div>
                 <button type="submit" class="btn btn-primary" id="submitBtn">Publier mon avis</button>
                 <div id="formFeedback" style="margin-top: 1rem; font-weight: 600;"></div>
+                <div style="margin-top: 2rem; border-top: 1px solid var(--border-light); padding-top: 1.5rem; text-align: center;">
+                    <p style="font-weight: 800; color: var(--primary); font-size: 1.1rem; letter-spacing: 1px;">Dan Kande</p>
+                </div>
             </form>
         </div>
 
@@ -263,7 +269,11 @@
                         'Authorization': `Bearer ${SB_KEY}`,
                         'Prefer': 'return=minimal'
                     },
-                    body: JSON.stringify(data)
+                    body: JSON.stringify({
+                        nom: document.getElementById('reviewName').value,
+                        commentaire: document.getElementById('reviewComment').value,
+                        note: parseInt(currentRating)
+                    })
                 });
 
                 if (res.ok) {
@@ -272,10 +282,13 @@
                     document.getElementById('reviewForm').reset();
                     updateStars(5);
                 } else {
-                    throw new Error('Server error');
+                    const errData = await res.json();
+                    console.error("Supabase Error:", errData);
+                    throw new Error(errData.message || 'Server error');
                 }
             } catch (err) {
-                fb.textContent = 'Erreur lors de l\'envoi. Veuillez vérifier votre connexion.';
+                console.error("Submission error:", err);
+                fb.textContent = 'Erreur lors de l\'envoi. Veuillez vérifier votre connexion ou réessayer plus tard.';
                 fb.style.color = 'red';
             } finally {
                 btn.disabled = false;
@@ -285,5 +298,6 @@
 
         window.onload = loadReviews;
     </script>
+    <script src="../assets/js/index.js"></script>
 </body>
 </html>

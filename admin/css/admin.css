@@ -299,14 +299,15 @@ body.login-mode .login-wrapper {
 }
 
 .sidebar-logo {
-    width: 70px;
-    height: 70px;
+    width: 80px;
+    height: 80px;
     object-fit: cover;
     border-radius: 50%;
-    border: 2px solid var(--neon-green);
-    margin-bottom: 1rem;
+    border: 3px solid var(--neon-green);
+    margin: 0 auto 1.5rem auto;
+    display: block;
     background: #fff;
-    box-shadow: 0 0 15px var(--neon-green-dim);
+    box-shadow: 0 0 25px var(--neon-green-dim), inset 0 0 10px rgba(0,0,0,0.2);
 }
 
 .sidebar-menu {
@@ -355,7 +356,20 @@ body.login-mode .login-wrapper {
     flex-grow: 1;
     margin-left: 280px;
     padding: 4rem;
-    background: radial-gradient(circle at top right, rgba(124, 207, 43, 0.05), transparent 40%);
+    min-height: 100vh;
+    background: radial-gradient(circle at 70% 20%, rgba(124, 207, 43, 0.08), transparent 50%),
+                radial-gradient(circle at 10% 80%, rgba(124, 207, 43, 0.03), transparent 40%);
+    position: relative;
+}
+
+.admin-main::before {
+    content: '';
+    position: absolute;
+    inset: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    border-radius: 40px;
+    pointer-events: none;
+    z-index: -1;
 }
 
 .admin-header {

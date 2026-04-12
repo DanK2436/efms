@@ -326,6 +326,15 @@ document.addEventListener('DOMContentLoaded', () => {
             navLinks.style.backdropFilter = 'blur(20px)';
             if (isOpen) navLinks.removeAttribute('style');
         });
+
+        // Auto-close menu when clicking a link
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 1024) {
+                    navLinks.removeAttribute('style');
+                }
+            });
+        });
     }
 
     // ===== Smooth scroll on anchor links =====
