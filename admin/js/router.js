@@ -83,8 +83,8 @@ const Views = {
                 <header class="admin-header">
                     <h2 id="page-title">Tableau de <span>Bord</span></h2>
                     <div class="user-profile" style="display:flex; align-items:center; gap:10px;">
-                        <span style="font-size:0.9rem; color:var(--text-muted)">Connecté en tant que <strong>Admin</strong></span>
-                        <div style="width:35px; height:35px; background:var(--neon-green); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#000; font-weight:800;">A</div>
+                        <span style="font-size:0.9rem; color:var(--text-muted)">Connecté en tant que <strong>Guelord Kasumpa</strong></span>
+                        <div style="width:35px; height:35px; background:var(--neon-green); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#000; font-weight:800;">GK</div>
                     </div>
                 </header>
                 <div id="tab-content">${content}</div>
@@ -122,8 +122,8 @@ const Views = {
         </div>
     `,
     Annonces: `
-        <div style="display:flex; justify-content:flex-end; margin-bottom:2rem;">
-            <button class="btn btn-primary btn-3d" onclick="Admin.toggleAnnonceForm()">
+        <div style="display:flex; justify-content:flex-start; margin-bottom:2rem;">
+            <button class="btn btn-primary" onclick="Admin.toggleAnnonceForm()" style="padding: 0.8rem 1.5rem; font-size: 0.9rem;">
                 + Ajouter une nouvelle annonce
             </button>
         </div>

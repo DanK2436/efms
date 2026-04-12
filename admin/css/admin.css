@@ -349,7 +349,8 @@ body.login-mode .login-wrapper {
 }
 
 .sidebar-footer {
-    padding-top: 2rem;
+    margin-top: auto; /* Pushes to bottom */
+    padding: 2rem 1rem;
     border-top: 1px solid rgba(255,255,255,0.05);
 }
 
