@@ -355,7 +355,7 @@ body.login-mode .login-wrapper {
 .admin-main {
     flex-grow: 1;
     margin-left: 280px;
-    padding: 3rem;
+    padding: 5rem 4rem 4rem 4rem; /* Increased top padding */
     min-height: 100vh;
     width: calc(100% - 280px);
     box-sizing: border-box;
@@ -369,7 +369,9 @@ body.login-mode .login-wrapper {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 4rem;
+    margin-bottom: 5rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
 .admin-header h2 {
