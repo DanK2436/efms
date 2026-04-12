@@ -166,53 +166,9 @@ const Views = {
             <div id="reviewsAdminList" style="margin-top:1.5rem;"></div>
         </div>
     `,
-    Requests: `
         <div class="admin-card">
             <h3>Demandes de Devis (Récentes)</h3>
-            <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:2rem;">Cliquez sur une demande pour voir les détails et préparer une réponse professionnelle.</p>
             <div id="requestsList" style="margin-top:1.5rem;"></div>
-        </div>
-        
-        <!-- Editor Modal Overlay -->
-        <div id="editor-overlay" class="editor-overlay" style="display:none;">
-            <div class="word-document">
-                <div class="word-header">
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                        <div>
-                            <img src="../assets/images/logo_efms.jpeg" style="width:60px; border-radius:10px;">
-                            <h2 style="color:#000; margin-top:10px;">EFMS Solution</h2>
-                        </div>
-                        <div style="text-align:right; color:#666;">
-                            <p id="doc-date"></p>
-                            <p>Ref: <span id="doc-id"></span></p>
-                        </div>
-                    </div>
-                </div>
-                <div class="word-content">
-                    <p style="margin-bottom:20px;"><strong>À l'attention de :</strong> <span id="doc-recipient"></span></p>
-                    <div class="emoji-bar">
-                        <span>🚀</span> <span>🛠️</span> <span>✅</span> <span>📱</span> <span>💎</span> <span>📍</span>
-                    </div>
-                    <textarea id="doc-editor" placeholder="Rédigez votre réponse professionnelle ici..."></textarea>
-                    
-                    <div class="word-images-container" id="doc-images">
-                        <!-- Preview Images -->
-                    </div>
-                    
-                    <div style="margin-top:20px;">
-                        <label class="btn-sm btn-secondary" style="cursor:pointer;">
-                            + Ajouter une image au document
-                            <input type="file" id="doc-file-input" style="display:none;" accept="image/*" onchange="Admin.handleDocImage(this)">
-                        </label>
-                    </div>
-                </div>
-                <div class="word-footer">
-                    <div style="display:flex; gap:10px; justify-content:flex-end;">
-                        <button class="btn btn-secondary" onclick="Admin.closeEditor()">Fermer</button>
-                        <button class="btn btn-primary" onclick="Admin.sendEmailResponse()" style="background:#007bff; color:#fff;">Envoyer par Email ✉️</button>
-                    </div>
-                </div>
-            </div>
         </div>
     `
 };
@@ -480,24 +436,21 @@ const Admin = {
             list.innerHTML = data.length === 0 ? '<p>Aucune demande de devis.</p>' : '';
             data.forEach(r => {
                 const div = document.createElement('div');
-                div.className = 'admin-item request-item-summary';
-                div.style.cursor = "pointer";
-                div.onclick = (e) => {
-                    const detail = div.querySelector('.request-details');
-                    if (e.target.tagName !== 'BUTTON') {
-                        detail.style.display = detail.style.display === 'none' ? 'block' : 'none';
-                    }
-                };
+                div.className = 'admin-item';
+                div.id = `req-${r.id}`;
                 
                 div.innerHTML = `
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <div>
                             <h4 style="margin:0;">${r.nom} <small style="color:var(--neon-green)">(${r.service || 'Devis'})</small></h4>
-                            <p style="margin:5px 0 0 0; font-size:0.85rem; color:var(--text-muted);">${r.message.substring(0, 60)}...</p>
+                            <p style="margin:5px 0 0 0; font-size:0.85rem; color:var(--text-muted);">${r.message.substring(0, 50)}...</p>
                         </div>
-                        <button class="btn btn-primary btn-sm" onclick="Admin.openEditor('${r.id}', '${r.nom}', '${r.email}', '${r.message}')">🖋️ Préparer une réponse</button>
+                        <div style="display:flex; gap:10px;">
+                            <button class="btn btn-secondary btn-sm" onclick="Admin.toggleReqDetail('${r.id}')">Voir</button>
+                            <button class="btn btn-primary btn-sm" onclick="Admin.directReply('${r.email}', '${r.nom}', '${r.id}')">Répondre</button>
+                        </div>
                     </div>
-                    <div class="request-details fade-in" style="display:none; margin-top:20px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.05);">
+                    <div class="request-details fade-in" id="detail-${r.id}" style="display:none; margin-top:20px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.05);">
                         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
                             <div>
                                 <small style="color:var(--text-muted)">Contact :</small>
@@ -513,6 +466,9 @@ const Admin = {
                             <small style="color:var(--text-muted)">Message complet :</small>
                             <p style="margin-top:10px; line-height:1.6; background:rgba(0,0,0,0.2); padding:1rem; border-radius:12px;">${r.message}</p>
                         </div>
+                        <div style="margin-top:15px; display:flex; justify-content:flex-end;">
+                            <button class="btn btn-danger btn-sm" onclick="Admin.deleteItem('requests', '${r.id}')">Archiver cette demande</button>
+                        </div>
                     </div>
                 `;
                 list.appendChild(div);
@@ -520,44 +476,15 @@ const Admin = {
         } catch (e) { console.error(e); }
     },
 
-    currentDocRequest: null,
-
-    openEditor: (id, nom, email, msg) => {
-        Admin.currentDocRequest = { id, nom, email, msg };
-        const overlay = document.getElementById('editor-overlay');
-        document.getElementById('doc-recipient').textContent = `${nom} <${email}>`;
-        document.getElementById('doc-id').textContent = id.substring(0, 8);
-        document.getElementById('doc-date').textContent = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-        document.getElementById('doc-editor').value = `Bonjour ${nom},\n\nNous avons bien reçu votre demande concernant le service : ${msg.substring(0, 20)}...\n\n[Votre réponse ici]\n\nCordialement,\nL'équipe EFMS 🛠️`;
-        overlay.style.display = 'flex';
+    toggleReqDetail: (id) => {
+        const el = document.getElementById(`detail-${id}`);
+        if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
     },
 
-    closeEditor: () => {
-        document.getElementById('editor-overlay').style.display = 'none';
-    },
-
-    handleDocImage: (input) => {
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const container = document.getElementById('doc-images');
-                const img = document.createElement('img');
-                img.src = e.target.result;
-                img.style.maxWidth = '200px';
-                img.style.margin = '10px';
-                img.style.borderRadius = '10px';
-                container.appendChild(img);
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-    },
-
-    sendEmailResponse: () => {
-        const body = document.getElementById('doc-editor').value;
-        const req = Admin.currentDocRequest;
-        const mailto = `mailto:${req.email}?subject=Réponse EFMS - Devis ${req.id.substring(0,8)}&body=${encodeURIComponent(body)}`;
-        window.location.href = mailto;
-        Admin.closeEditor();
+    directReply: (email, nom, id) => {
+        const subject = `Réponse EFMS - Devis ${id.substring(0,8)}`;
+        const body = `Bonjour ${nom},\n\nNous avons bien reçu votre demande sur notre site EFMS.\n\n[Votre réponse ici]\n\nCordialement,\nL'équipe EFMS 🛠️`;
+        window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     },
 
     deleteItem: async (table, id) => {
