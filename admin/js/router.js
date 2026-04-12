@@ -115,23 +115,38 @@ const Views = {
             <div id="visitsList" style="margin-top:1.5rem;"></div>
         </div>
     `,
-    Annonces: `
-        <div class="admin-card">
+        <div style="display:flex; justify-content:flex-end; margin-bottom:2rem;">
+            <button class="btn btn-primary btn-3d" onclick="Admin.toggleAnnonceForm()">
+                + Ajouter une nouvelle annonce
+            </button>
+        </div>
+
+        <div class="admin-card fade-in" id="annonce-form-card" style="display:none;">
             <h3>Publier une Annonce</h3>
             <form id="adminForm" style="margin-top:1.5rem;">
                 <div class="form-group" style="margin-bottom:1.5rem;">
                     <label>Titre de l'annonce</label>
-                    <input type="text" id="titre" placeholder="Titre accrocheur..." required style="width:100%; padding:1rem; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); border-radius:10px; color:#fff;">
+                    <input type="text" id="titre" placeholder="Titre accrocheur..." required>
                 </div>
                 <div class="form-group" style="margin-bottom:1.5rem;">
                     <label>Contenu</label>
-                    <textarea id="contenu" placeholder="Détails de l'annonce..." rows="4" required style="width:100%; padding:1rem; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); border-radius:10px; color:#fff;"></textarea>
+                    <textarea id="contenu" placeholder="Détails de l'annonce..." rows="4" required></textarea>
                 </div>
-                <div class="form-group" style="margin-bottom:1.5rem;">
+                <div class="form-group" style="margin-bottom:2rem;">
                     <label>Média (Image/Vidéo)</label>
-                    <input type="file" id="media" accept="image/*,video/*" style="width:100%; padding:0.5rem; color:var(--text-muted);">
+                    <div class="file-upload-wrapper">
+                        <div class="file-upload-design">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom:10px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                            <p id="file-label">Cliquez ou déposez un fichier ici</p>
+                            <small>(Images ou Vidéos uniquement)</small>
+                        </div>
+                        <input type="file" id="media" accept="image/*,video/*" onchange="document.getElementById('file-label').textContent = this.files[0].name">
+                    </div>
                 </div>
-                <button type="submit" class="btn btn-primary" id="btn-publier" style="padding:1rem 2rem;">Publier Maintenant</button>
+                <div style="display:flex; gap:10px;">
+                    <button type="submit" class="btn btn-primary" id="btn-publier" style="padding:1rem 2rem;">Publier Maintenant</button>
+                    <button type="button" class="btn btn-secondary" onclick="Admin.toggleAnnonceForm()" style="padding:1rem 2rem;">Annuler</button>
+                </div>
                 <div id="admin-feedback" style="margin-top:1rem;"></div>
             </form>
         </div>
@@ -448,6 +463,14 @@ const Admin = {
     logout: () => {
         Router.setLogin('false');
         window.location.reload();
+    },
+
+    toggleAnnonceForm: () => {
+        const container = document.getElementById('annonce-form-card');
+        if (container) {
+            const isHidden = container.style.display === 'none';
+            container.style.display = isHidden ? 'block' : 'none';
+        }
     }
 };
 

@@ -508,6 +508,60 @@ body.login-mode .login-wrapper {
     border-color: var(--glass-border);
 }
 
+/* Professional File Upload */
+.file-upload-wrapper {
+    position: relative;
+    width: 100%;
+    min-height: 150px;
+    border: 2px dashed rgba(124, 207, 43, 0.3);
+    border-radius: 20px;
+    background: rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.file-upload-wrapper:hover {
+    border-color: var(--neon-green);
+    background: rgba(124, 207, 43, 0.05);
+}
+
+.file-upload-design {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+.file-upload-wrapper:hover .file-upload-design {
+    color: var(--neon-green);
+    transform: scale(1.05);
+}
+
+.file-upload-wrapper input[type="file"] {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 5;
+}
+
+.file-upload-design p {
+    font-weight: 700;
+    margin: 5px 0;
+}
+
+.file-upload-design small {
+    opacity: 0.6;
+}
+
 @media (max-width: 1200px) {
     .admin-main {
         padding: 2rem;
