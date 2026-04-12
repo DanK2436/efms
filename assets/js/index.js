@@ -229,7 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 2500);
 
             function handleSuccess(stepText) {
-                stepText.innerHTML = '✅ Demande transmise avec succès ! Nous vous recontacterons sous peu.<br><span style="font-size:0.8rem; color:var(--text-muted); font-weight:normal; margin-top:10px; display:block;">Vous pouvez fermer cette fenêtre.</span>';
+                stepText.innerHTML = '<span style="color:var(--primary); font-weight:800;">[SUCCÈS]</span> Demande transmise avec succès ! Nous vous recontacterons sous peu.<br><span style="font-size:0.8rem; color:var(--text-muted); font-weight:normal; margin-top:10px; display:block;">Vous pouvez fermer cette fenêtre.</span>';
                 setTimeout(() => {
                     modal.classList.remove('active');
                     contactForm.reset();
@@ -237,7 +237,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             function handleError(stepText, mailTo, subject, bodyText) {
-                stepText.innerHTML = '⚠️ Erreur réseau. Redirection vers votre messagerie de secours...<br><span style="font-size:0.8rem; color:var(--text-muted); font-weight:normal; margin-top:10px; display:block;">Cliquez sur "Envoyer" dans votre application mail.</span>';
+                stepText.innerHTML = '<span style="color:var(--danger); font-weight:800;">[ALERTE]</span> Erreur réseau. Redirection vers votre messagerie de secours...<br><span style="font-size:0.8rem; color:var(--text-muted); font-weight:normal; margin-top:10px; display:block;">Cliquez sur "Envoyer" dans votre application mail.</span>';
                 setTimeout(() => {
                     const link = `mailto:${mailTo}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
                     window.location.href = link;

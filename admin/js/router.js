@@ -72,7 +72,6 @@ const Views = {
                         </a>
                     </li>
                 </ul>
-                </ul>
             </aside>
             <main class="admin-main">
                 <header class="admin-header">
@@ -166,6 +165,7 @@ const Views = {
             <div id="reviewsAdminList" style="margin-top:1.5rem;"></div>
         </div>
     `,
+    Requests: `
         <div class="admin-card">
             <h3>Demandes de Devis (Récentes)</h3>
             <div id="requestsList" style="margin-top:1.5rem;"></div>
@@ -447,19 +447,22 @@ const Admin = {
                         </div>
                         <div style="display:flex; gap:10px;">
                             <button class="btn btn-secondary btn-sm" onclick="Admin.toggleReqDetail('${r.id}')">Voir</button>
-                            <button class="btn btn-primary btn-sm" onclick="Admin.directReply('${r.email}', '${r.nom}', '${r.id}')">Répondre</button>
+                            <button class="btn btn-primary btn-sm" onclick="Admin.directReply('${r.email}', '${r.nom}', '${r.id}')" style="display:flex; align-items:center; gap:5px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"></path></svg>
+                                Répondre
+                            </button>
                         </div>
                     </div>
                     <div class="request-details fade-in" id="detail-${r.id}" style="display:none; margin-top:20px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.05);">
                         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
                             <div>
                                 <small style="color:var(--text-muted)">Contact :</small>
-                                <p style="margin:5px 0;">📧 ${r.email}</p>
-                                <p style="margin:5px 0;">📞 ${r.telephone || 'Non renseigné'}</p>
+                                <p style="margin:5px 0;">[Email] ${r.email}</p>
+                                <p style="margin:5px 0;">[Tel] ${r.telephone || 'Non renseigné'}</p>
                             </div>
                             <div>
                                 <small style="color:var(--text-muted)">Véhicule :</small>
-                                <p style="margin:5px 0;">🚗 ${r.vehicule || 'N/A'}</p>
+                                <p style="margin:5px 0;">[Auto] ${r.vehicule || 'N/A'}</p>
                             </div>
                         </div>
                         <div style="margin-top:15px;">
@@ -483,7 +486,7 @@ const Admin = {
 
     directReply: (email, nom, id) => {
         const subject = `Réponse EFMS - Devis ${id.substring(0,8)}`;
-        const body = `Bonjour ${nom},\n\nNous avons bien reçu votre demande sur notre site EFMS.\n\n[Votre réponse ici]\n\nCordialement,\nL'équipe EFMS 🛠️`;
+        const body = `Bonjour ${nom},\n\nNous avons bien reçu votre demande sur notre site EFMS.\n\n[Votre réponse ici]\n\nCordialement,\nL'équipe EFMS`;
         window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     },
 
