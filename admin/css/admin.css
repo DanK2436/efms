@@ -653,20 +653,111 @@ body.login-mode .login-wrapper {
 
 @media (max-width: 1200px) {
     .admin-main {
-        padding: 2rem;
+        padding: 8rem 2rem 2rem 2rem;
     }
 }
 
 @media (max-width: 1024px) {
-    .admin-sidebar {
-        width: 80px;
-    }
-    .sidebar-link span, .sidebar-header h3 {
-        display: none;
-    }
     .admin-main {
-        margin-left: 80px;
-        width: calc(100% - 80px);
-        padding: 2rem;
+        margin-left: 0;
+        width: 100%;
+        padding: 7rem 1.5rem 2rem 1.5rem;
+    }
+    
+    .admin-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 280px !important;
+        height: 100vh;
+        z-index: 2000;
+        transform: translateX(-100%);
+        transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        background: rgba(11, 14, 17, 0.98);
+        border-right: 1px solid rgba(124, 207, 43, 0.3);
+        box-shadow: 10px 0 30px rgba(0,0,0,0.8);
+        padding: 2rem 1rem;
+        flex-direction: column;
+    }
+    
+    .admin-sidebar.mobile-open {
+        transform: translateX(0);
+    }
+    
+    .sidebar-header {
+        padding: 1rem 1rem 2rem 1rem;
+        margin-bottom: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .sidebar-header h3, .sidebar-link span {
+        display: block !important;
+    }
+    
+    .sidebar-menu {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+
+    #mobileAdminMenuBtn {
+        display: block !important;
+    }
+
+    .admin-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+    }
+    
+    .user-actions {
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px !important;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-main {
+        margin-left: 0;
+        width: 100%;
+        padding: 6rem 1rem 2rem 1rem;
+    }
+    .admin-header {
+        flex-direction: row;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+    }
+    .admin-header h2 {
+        font-size: 1.5rem;
+    }
+    .user-actions {
+        width: auto;
+        justify-content: flex-end;
+        flex-direction: row !important;
+        gap: 10px !important;
+    }
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .request-item-summary > div {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 1rem;
+    }
+    .request-details > div {
+        grid-template-columns: 1fr !important;
     }
 }

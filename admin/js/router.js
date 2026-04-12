@@ -75,13 +75,20 @@ const Views = {
             </aside>
             <main class="admin-main">
                 <header class="admin-header">
-                    <h2 id="page-title">Tableau de <span>Bord</span></h2>
-                    <div class="user-actions" style="display:flex; align-items:center; gap:20px;">
+                    <div style="display:flex; align-items:center; gap:15px;">
+                        <button id="mobileAdminMenuBtn" class="btn btn-secondary btn-sm" onclick="Admin.toggleMobileMenu()" style="display:none; padding:0.5rem; background:var(--neon-green); color:#000; border:none; border-radius:8px;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+                        </button>
+                        <h2 id="page-title">Tableau de <span>Bord</span></h2>
+                    </div>
+                    <div class="user-actions" style="display:flex; align-items:center; gap:10px;">
                         <div class="user-profile" style="display:flex; align-items:center; gap:10px;">
-                            <span style="font-size:0.9rem; color:var(--text-muted)"><strong>Guelord Kasumpa</strong></span>
+                            <span class="user-name-text" style="font-size:0.9rem; color:var(--text-muted)"><strong>Guelord Kasumpa</strong></span>
                             <div style="width:35px; height:35px; background:var(--neon-green); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#000; font-weight:800;">GK</div>
                         </div>
-                        <button onclick="Admin.logout()" class="btn btn-danger btn-sm" style="padding: 0.5rem 1rem; border-radius: 8px; font-weight:700;">Déconnexion</button>
+                        <button onclick="Admin.logout()" class="btn btn-danger btn-sm" style="padding: 0.5rem; border-radius: 8px; font-weight:700;" title="Déconnexion">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+                        </button>
                     </div>
                 </header>
                 <div id="tab-content">${content}</div>
@@ -256,6 +263,12 @@ const Admin = {
         document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
         const activeLink = document.getElementById(`link-${tab}`);
         if (activeLink) activeLink.classList.add('active');
+
+        // Close mobile menu if open
+        const sidebar = document.querySelector('.admin-sidebar');
+        if (sidebar && sidebar.classList.contains('mobile-open')) {
+            sidebar.classList.remove('mobile-open');
+        }
 
         if (tab === 'stats') {
             title.innerHTML = 'Tableau de <span>Bord</span>';
@@ -539,6 +552,11 @@ const Admin = {
     logout: () => {
         Router.setLogin('false');
         window.location.reload();
+    },
+
+    toggleMobileMenu: () => {
+        const sidebar = document.querySelector('.admin-sidebar');
+        if (sidebar) sidebar.classList.toggle('mobile-open');
     },
 
     toggleAnnonceForm: () => {
