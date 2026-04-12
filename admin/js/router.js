@@ -24,8 +24,7 @@ const Views = {
                     <form id="login-form">
                         <div class="form-group input-3d-group">
                             <label>Identifiant</label>
-                            <input type="email" id="username" placeholder="admin@efms.outlook.com" required>
-                            <small style="color:rgba(255,255,255,0.4); font-size:0.75rem; margin-top:5px; display:block;">Exemple: exemple@dankande.com</small>
+                            <input type="email" id="username" placeholder="exemple@dankande.com" required>
                         </div>
                         <div class="form-group input-3d-group" style="position:relative;">
                             <label>Mot de passe</label>

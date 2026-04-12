@@ -355,21 +355,14 @@ body.login-mode .login-wrapper {
 .admin-main {
     flex-grow: 1;
     margin-left: 280px;
-    padding: 4rem;
+    padding: 3rem;
     min-height: 100vh;
+    width: calc(100% - 280px);
+    box-sizing: border-box;
+    overflow-x: hidden;
     background: radial-gradient(circle at 70% 20%, rgba(124, 207, 43, 0.08), transparent 50%),
                 radial-gradient(circle at 10% 80%, rgba(124, 207, 43, 0.03), transparent 40%);
     position: relative;
-}
-
-.admin-main::before {
-    content: '';
-    position: absolute;
-    inset: 2rem;
-    border: 1px solid rgba(255, 255, 255, 0.03);
-    border-radius: 40px;
-    pointer-events: none;
-    z-index: -1;
 }
 
 .admin-header {
@@ -515,6 +508,12 @@ body.login-mode .login-wrapper {
     border-color: var(--glass-border);
 }
 
+@media (max-width: 1200px) {
+    .admin-main {
+        padding: 2rem;
+    }
+}
+
 @media (max-width: 1024px) {
     .admin-sidebar {
         width: 80px;
@@ -524,6 +523,7 @@ body.login-mode .login-wrapper {
     }
     .admin-main {
         margin-left: 80px;
+        width: calc(100% - 80px);
         padding: 2rem;
     }
 }
