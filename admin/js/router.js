@@ -114,6 +114,7 @@ const Views = {
             <h3>Flux de Visiteurs en Temps Réel</h3>
             <div id="visitsList" style="margin-top:1.5rem;"></div>
         </div>
+    `,
     Annonces: `
         <div style="display:flex; justify-content:flex-end; margin-bottom:2rem;">
             <button class="btn btn-primary btn-3d" onclick="Admin.toggleAnnonceForm()">
