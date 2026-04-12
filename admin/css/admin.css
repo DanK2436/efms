@@ -293,22 +293,22 @@ body.login-mode .login-wrapper {
 }
 
 .sidebar-header {
-    padding: 0 1rem 3rem 1rem;
+    padding: 2rem 1rem 3rem 1rem; /* Added 2rem at the top */
     border-bottom: 1px solid rgba(255,255,255,0.05);
     margin-bottom: 2rem;
+    text-align: center; /* Ensure contents are centered */
 }
 
 .sidebar-logo {
-    width: 110px;
-    height: 110px;
-    object-fit: contain;
-    border-radius: 20px;
-    border: 2px solid var(--neon-green);
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid var(--neon-green);
     margin: 0 auto 1.5rem auto;
     display: block;
     background: #fff;
-    padding: 5px;
-    box-shadow: 0 0 35px var(--neon-green-dim);
+    box-shadow: 0 0 25px var(--neon-green-dim), inset 0 0 10px rgba(0,0,0,0.2);
 }
 
 .sidebar-menu {
