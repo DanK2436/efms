@@ -10,31 +10,13 @@
     <link rel="stylesheet" href="../assets/css/index.css">
     <link rel="stylesheet" href="css/admin.css">
 </head>
-<body>
-    <header id="header">
-        <nav class="container">
-            <a href="../index.html" class="logo">
-                <img src="../assets/images/logo_efms.jpeg" alt="EFMS Logo">
-                <span class="logo-subtext">Portail Admin</span>
-            </a>
-            <ul class="nav-links" id="admin-nav" style="display: none;">
-                <li><a href="#" id="nav-dashboard">Tableau de bord</a></li>
-                <li><a href="#" id="nav-logout" style="color:var(--danger)">Déconnexion</a></li>
-            </ul>
-        </nav>
-    </header>
-
-    <div class="page-banner">
-        <div class="container">
-            <h1>Espace <span>Admin</span></h1>
-            <p id="admin-subtitle">Veuillez vous authentifier pour accéder au portail.</p>
+<body class="login-mode">
+    <!-- Shell container that will hold either Login box or Dashboard Sidebar layout -->
+    <div id="app-container" style="width: 100%; min-height: 100vh;">
+        <div style="display:flex; align-items:center; justify-content:center; height:100vh; color:#7ccf2b; font-weight:bold;">
+            Initialisation du système EFMS...
         </div>
     </div>
-
-    <main id="app-container" class="admin-container container">
-        <!-- Contenu dynamique chargé par router.js -->
-        <p style="text-align:center;">Chargement de l'application...</p>
-    </main>
 
     <script src="js/router.js"></script>
 </body>

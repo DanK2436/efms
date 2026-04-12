@@ -16,123 +16,153 @@ const Views = {
                 <div class="card-edge-highlight"></div>
                 <div class="login-content">
                     <div class="logo-3d">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" /></svg>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
                     </div>
-                    <h2 class="title-3d">EFMS Portal</h2>
-                    <p class="subtitle-3d">Accès Sécurisé (Supabase)</p>
+                    <h2 class="title-3d">EFMS Dashboard</h2>
+                    <p class="subtitle-3d">Accès Administrateur</p>
                     <div id="auth-error" class="auth-error">Identifiants incorrects</div>
                     <form id="login-form">
                         <div class="form-group input-3d-group">
-                            <label for="username">Identifiant</label>
+                            <label>Identifiant</label>
                             <input type="email" id="username" placeholder="admin@efms.outlook.com" required>
                         </div>
                         <div class="form-group input-3d-group">
-                            <label for="password">Mot de passe</label>
+                            <label>Mot de passe</label>
                             <input type="password" id="password" placeholder="********" required>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100 btn-3d" id="login-btn">Initialiser la session</button>
+                        <button type="submit" class="btn btn-primary w-100 btn-3d" id="login-btn">Se Connecter</button>
                     </form>
                 </div>
             </div>
         </div>
     `,
-    Dashboard: `
-        <div class="fade-in">
-            <div class="admin-tabs">
-                <button class="tab-btn active" id="tab-annonces" onclick="Admin.switchTab('annonces')">Gestion des Annonces</button>
-                <button class="tab-btn" id="tab-reviews" onclick="Admin.switchTab('reviews')">Modération des Avis</button>
-                <button class="tab-btn" id="tab-demandes" onclick="Admin.switchTab('demandes')">Demandes Clients</button>
-                <button class="tab-btn" id="tab-stats" onclick="Admin.switchTab('stats')">Statistiques Visites</button>
-            </div>
-            
-            <div id="section-annonces">
-                <div class="admin-panel" style="margin-bottom:2.5rem;">
-                    <h3>Publier une nouvelle annonce</h3>
-                    <form id="adminForm">
-                        <div class="form-group">
-                            <label for="titre">Titre de l'annonce</label>
-                            <input type="text" id="titre" placeholder="Ex: Promotion -20%..." required>
-                        </div>
-                        <div class="form-group">
-                            <label for="contenu">Contenu de l'annonce</label>
-                            <textarea id="contenu" placeholder="Détails..." rows="4" required></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="media">Importer une image (Optionnel)</label>
-                            <input type="file" id="media" accept="image/*" style="border:1px solid #333; padding: 0.5rem; width: 100%; border-radius:4px; background:rgba(255,255,255,0.05);">
-                        </div>
-                        <button type="submit" class="btn btn-primary" id="btn-publier">Publier l'annonce</button>
-                        <div id="admin-feedback" style="margin-top:1rem; font-weight:bold;"></div>
-                    </form>
+    DashboardLayout: (content) => `
+        <div class="admin-layout fade-in">
+            <aside class="admin-sidebar">
+                <div class="sidebar-header">
+                    <img src="../assets/images/logo_efms.jpeg" alt="EFMS" class="sidebar-logo">
+                    <h3 style="font-size:1.2rem; font-weight:800;">EFMS <span>Admin</span></h3>
                 </div>
-                <div class="admin-list">
-                    <h3>Annonces publiées</h3>
-                    <div id="adminList" style="margin-top:1.5rem;"></div>
+                <ul class="sidebar-menu">
+                    <li class="sidebar-item">
+                        <a class="sidebar-link active" id="link-stats" onclick="Admin.switchTab('stats')">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18M7 16V10M11 16V6M15 16V12M19 16V8"/></svg>
+                            <span>Statistiques</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" id="link-annonces" onclick="Admin.switchTab('annonces')">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2v16z"/></svg>
+                            <span>Annonces</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" id="link-reviews" onclick="Admin.switchTab('reviews')">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z"/></svg>
+                            <span>Avis Clients</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" id="link-requests" onclick="Admin.switchTab('requests')">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zM22 6l-10 7L2 6"/></svg>
+                            <span>Demandes</span>
+                        </a>
+                    </li>
+                </ul>
+                <div class="sidebar-footer">
+                    <a class="sidebar-link" style="color:var(--danger)" onclick="Admin.logout()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+                        <span>Déconnexion</span>
+                    </a>
                 </div>
-            </div>
-
-            <div id="section-reviews" style="display:none;">
-                <div class="admin-list">
-                    <h3>Modération des Avis Clients</h3>
-                    <div id="reviewsAdminList" style="margin-top:1.5rem;"></div>
-                </div>
-            </div>
-
-            <div id="section-demandes" style="display:none;">
-                <div class="admin-list">
-                    <h3>Demandes de Devis Reçues</h3>
-                    <div id="requestsList" style="margin-top:1.5rem;"></div>
-                </div>
-            </div>
-
-            <div id="section-stats" style="display:none;">
-                <div class="admin-panel">
-                    <h3>Statistiques de Visites</h3>
-                    <div id="stats-summary" style="display:grid; grid-template-columns:repeat(4, 1fr); gap:1rem; margin-top:2rem;">
-                        <div class="admin-item" style="text-align:center;">
-                            <h2 id="visits-day" style="color:var(--primary)">0</h2>
-                            <p>Aujourd'hui</p>
-                        </div>
-                        <div class="admin-item" style="text-align:center;">
-                            <h2 id="visits-week" style="color:var(--primary)">0</h2>
-                            <p>Cette Semaine</p>
-                        </div>
-                        <div class="admin-item" style="text-align:center;">
-                            <h2 id="visits-month" style="color:var(--primary)">0</h2>
-                            <p>Ce Mois</p>
-                        </div>
-                        <div class="admin-item" style="text-align:center;">
-                            <h2 id="visits-year" style="color:var(--primary)">0</h2>
-                            <p>Cette Année</p>
-                        </div>
+            </aside>
+            <main class="admin-main">
+                <header class="admin-header">
+                    <h2 id="page-title">Tableau de <span>Bord</span></h2>
+                    <div class="user-profile" style="display:flex; align-items:center; gap:10px;">
+                        <span style="font-size:0.9rem; color:var(--text-muted)">Connecté en tant que <strong>Admin</strong></span>
+                        <div style="width:35px; height:35px; background:var(--neon-green); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#000; font-weight:800;">A</div>
                     </div>
-                </div>
-                <div class="admin-panel" style="margin-top:2rem;">
-                    <h3>Dernières Visites</h3>
-                    <div id="visitsList" style="margin-top:1.5rem;"></div>
-                </div>
+                </header>
+                <div id="tab-content">${content}</div>
+            </main>
+        </div>
+    `,
+    Stats: `
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3 id="visits-day">0</h3>
+                <p>Aujourd'hui</p>
             </div>
+            <div class="stat-card">
+                <h3 id="visits-week">0</h3>
+                <p>Semaine</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="visits-month">0</h3>
+                <p>Mois</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="visits-year">0</h3>
+                <p>Année</p>
+            </div>
+        </div>
+        <div class="admin-card">
+            <h3>Flux de Visiteurs en Temps Réel</h3>
+            <div id="visitsList" style="margin-top:1.5rem;"></div>
+        </div>
+    `,
+    Annonces: `
+        <div class="admin-card">
+            <h3>Publier une Annonce</h3>
+            <form id="adminForm" style="margin-top:1.5rem;">
+                <div class="form-group" style="margin-bottom:1.5rem;">
+                    <label>Titre de l'annonce</label>
+                    <input type="text" id="titre" placeholder="Titre accrocheur..." required style="width:100%; padding:1rem; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); border-radius:10px; color:#fff;">
+                </div>
+                <div class="form-group" style="margin-bottom:1.5rem;">
+                    <label>Contenu</label>
+                    <textarea id="contenu" placeholder="Détails de l'annonce..." rows="4" required style="width:100%; padding:1rem; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); border-radius:10px; color:#fff;"></textarea>
+                </div>
+                <div class="form-group" style="margin-bottom:1.5rem;">
+                    <label>Média (Image/Vidéo)</label>
+                    <input type="file" id="media" accept="image/*,video/*" style="width:100%; padding:0.5rem; color:var(--text-muted);">
+                </div>
+                <button type="submit" class="btn btn-primary" id="btn-publier" style="padding:1rem 2rem;">Publier Maintenant</button>
+                <div id="admin-feedback" style="margin-top:1rem;"></div>
+            </form>
+        </div>
+        <div class="admin-card">
+            <h3>Annonces Actives</h3>
+            <div id="adminList" style="margin-top:1.5rem;"></div>
+        </div>
+    `,
+    Reviews: `
+        <div class="admin-card">
+            <h3>Modération des Avis</h3>
+            <div id="reviewsAdminList" style="margin-top:1.5rem;"></div>
+        </div>
+    `,
+    Requests: `
+        <div class="admin-card">
+            <h3>Demandes de Devis Reçues</h3>
+            <div id="requestsList" style="margin-top:1.5rem;"></div>
         </div>
     `
 };
 
-// --- ROUTAGE & AUTHENTIFICATION ---
+// --- ROUTAGE ---
 const Router = {
     isLoggedIn: () => localStorage.getItem('efms_logged_in') === 'true',
     setLogin: (status) => localStorage.setItem('efms_logged_in', status),
 
     navigate: () => {
-        if (Router.isLoggedIn()) {
-            Router.renderDashboard();
-        } else {
-            Router.renderLogin();
-        }
+        if (Router.isLoggedIn()) Router.renderDashboard();
+        else Router.renderLogin();
     },
 
     renderLogin: () => {
         document.body.classList.add('login-mode');
-        subtitle.textContent = "Veuillez vous authentifier pour accéder au portail.";
-        nav.style.display = 'none';
         appContainer.innerHTML = Views.Login;
         
         document.getElementById('login-form').addEventListener('submit', async (e) => {
@@ -142,13 +172,13 @@ const Router = {
             const btn = document.getElementById('login-btn');
             const err = document.getElementById('auth-error');
             
-            btn.textContent = 'Vérification...';
+            btn.textContent = 'Authentification...';
             btn.disabled = true;
 
             try {
-                const encodedEmail = encodeURIComponent(u);
-                const encodedPass = encodeURIComponent(p);
-                const res = await fetch(`${SUPABASE_URL}/rest/v1/users?email=eq.${encodedEmail}&password=eq.${encodedPass}`, {
+                const encU = encodeURIComponent(u);
+                const encP = encodeURIComponent(p);
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/users?email=eq.${encU}&password=eq.${encP}`, {
                     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
                 });
                 const users = await res.json();
@@ -157,13 +187,11 @@ const Router = {
                     Router.setLogin('true');
                     Router.navigate();
                 } else {
-                    console.error("Login failed: User not found in database.");
                     throw new Error('Identifiants incorrects');
                 }
             } catch (error) {
-                console.error("Auth error:", error);
                 err.style.display = 'block';
-                btn.textContent = 'Se Connecter';
+                btn.textContent = 'Envoi...';
                 btn.disabled = false;
             }
         });
@@ -171,93 +199,117 @@ const Router = {
 
     renderDashboard: () => {
         document.body.classList.remove('login-mode');
-        subtitle.textContent = "Gérez les annonces, les avis, les visites et consultez les demandes des clients.";
-        nav.style.display = 'flex';
-        appContainer.innerHTML = Views.Dashboard;
-        Admin.init();
+        // Initial load with Stats
+        appContainer.innerHTML = Views.DashboardLayout(Views.Stats);
+        Admin.loadStats();
+        Admin.bindSidebar();
     }
 };
 
 // --- LOGIQUE ADMIN ---
 const Admin = {
-    init: () => {
-        document.getElementById('nav-logout').addEventListener('click', (e) => {
-            e.preventDefault();
-            Router.setLogin('false');
-            Router.navigate();
-        });
-
-        const form = document.getElementById('adminForm');
-        if (form) form.addEventListener('submit', Admin.publishAnnonce);
-        
-        Admin.loadAnnonces();
+    bindSidebar: () => {
+        // No need for specific link binding if we use onclick in HTML, 
+        // but let's handle the "active" state classes
     },
 
     switchTab: (tab) => {
-        const tAnnonces = document.getElementById('tab-annonces');
-        const tReviews = document.getElementById('tab-reviews');
-        const tDemandes = document.getElementById('tab-demandes');
-        const tStats = document.getElementById('tab-stats');
+        const content = document.getElementById('tab-content');
+        const title = document.getElementById('page-title');
         
-        const sAnnonces = document.getElementById('section-annonces');
-        const sReviews = document.getElementById('section-reviews');
-        const sDemandes = document.getElementById('section-demandes');
-        const sStats = document.getElementById('section-stats');
+        // Update Links
+        document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+        const activeLink = document.getElementById(`link-${tab}`);
+        if (activeLink) activeLink.classList.add('active');
 
-        // Reset
-        [tAnnonces, tReviews, tDemandes, tStats].forEach(t => t.classList.remove('active'));
-        [sAnnonces, sReviews, sDemandes, sStats].forEach(s => s.style.display = 'none');
-
-        if (tab === 'annonces') {
-            tAnnonces.classList.add('active'); sAnnonces.style.display = 'block';
+        if (tab === 'stats') {
+            title.innerHTML = 'Tableau de <span>Bord</span>';
+            content.innerHTML = Views.Stats;
+            Admin.loadStats();
+        } else if (tab === 'annonces') {
+            title.innerHTML = 'Gestion des <span>Annonces</span>';
+            content.innerHTML = Views.Annonces;
             Admin.loadAnnonces();
+            // Re-bind form
             setTimeout(() => {
                 const f = document.getElementById('adminForm');
                 if (f) f.addEventListener('submit', Admin.publishAnnonce);
             }, 0);
         } else if (tab === 'reviews') {
-            tReviews.classList.add('active'); sReviews.style.display = 'block';
+            title.innerHTML = 'Modération des <span>Avis</span>';
+            content.innerHTML = Views.Reviews;
             Admin.loadReviews();
-        } else if (tab === 'stats') {
-            tStats.classList.add('active'); sStats.style.display = 'block';
-            Admin.loadStats();
-        } else {
-            tDemandes.classList.add('active'); sDemandes.style.display = 'block';
+        } else if (tab === 'requests') {
+            title.innerHTML = 'Demandes de <span>Devis</span>';
+            content.innerHTML = Views.Requests;
             Admin.loadRequests();
         }
+    },
+
+    loadStats: async () => {
+        const list = document.getElementById('visitsList');
+        if (!list) return;
+        try {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/visits?select=*&order=created_at.desc`, {
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+            });
+            const visits = await res.json();
+            
+            const now = new Date();
+            const sDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const sWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
+            const sMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            const sYear = new Date(now.getFullYear(), 0, 1);
+
+            document.getElementById('visits-day').textContent = visits.filter(v => new Date(v.created_at) >= sDay).length;
+            document.getElementById('visits-week').textContent = visits.filter(v => new Date(v.created_at) >= sWeek).length;
+            document.getElementById('visits-month').textContent = visits.filter(v => new Date(v.created_at) >= sMonth).length;
+            document.getElementById('visits-year').textContent = visits.filter(v => new Date(v.created_at) >= sYear).length;
+
+            list.innerHTML = '';
+            visits.slice(0, 15).forEach(v => {
+                const div = document.createElement('div');
+                div.style.padding = "1rem"; div.style.borderBottom = "1px solid rgba(255,255,255,0.05)";
+                div.style.display = "flex"; div.style.justifyContent = "space-between";
+                div.innerHTML = `
+                    <span><strong>${v.page}</strong> <br> <small style="color:var(--text-muted)">${v.user_agent.substring(0, 50)}...</small></span>
+                    <small style="color:var(--neon-green)">${new Date(v.created_at).toLocaleString()}</small>
+                `;
+                list.appendChild(div);
+            });
+        } catch (e) { console.error(e); }
     },
 
     loadAnnonces: async () => {
         const list = document.getElementById('adminList');
         if (!list) return;
-        list.innerHTML = '<p>Chargement...</p>';
         try {
             const res = await fetch(`${SUPABASE_URL}/rest/v1/annonces?select=*&order=created_at.desc`, {
                 headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
             });
             const data = await res.json();
-            list.innerHTML = data.length === 0 ? '<div>Aucune annonce.</div>' : '';
+            list.innerHTML = data.length === 0 ? '<p>Aucune annonce active.</p>' : '';
             data.forEach(a => {
                 const div = document.createElement('div');
-                div.className = 'admin-item glass-panel';
-                div.style.display = "flex"; div.style.justifyContent = "space-between"; div.style.marginBottom = "1rem";
+                div.className = 'admin-item';
+                div.style.display = "flex"; div.style.justifyContent = "space-between"; div.style.padding = "1.5rem"; div.style.marginBottom = "1rem";
                 div.innerHTML = `
                     <div>
                         <h4 style="margin:0;">${a.titre}</h4>
-                        <small style="color:var(--primary)">${new Date(a.created_at).toLocaleDateString()}</small>
+                        <small style="color:var(--neon-green)">Publiée le ${new Date(a.created_at).toLocaleDateString()}</small>
                     </div>
                     <button class="btn btn-danger btn-sm" onclick="Admin.deleteItem('annonces', '${a.id}')">Supprimer</button>
                 `;
                 list.appendChild(div);
             });
-        } catch (e) { list.innerHTML = 'Erreur de chargement.'; }
+        } catch (e) { console.error(e); }
     },
 
     publishAnnonce: async (e) => {
         e.preventDefault();
         const btn = document.getElementById('btn-publier');
         const fb = document.getElementById('admin-feedback');
-        btn.disabled = true; btn.textContent = 'Envoi...';
+        btn.disabled = true; btn.textContent = 'Publication en cours...';
 
         const titre = document.getElementById('titre').value;
         const contenu = document.getElementById('contenu').value;
@@ -281,141 +333,91 @@ const Admin = {
                     'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`,
                     'Content-Type': 'application/json', 'Prefer': 'return=minimal' 
                 },
-                body: JSON.stringify({ titre, contenu, media_url: mediaUrl, media_type: file ? 'image' : null })
+                body: JSON.stringify({ titre, contenu, media_url: mediaUrl, media_type: file ? (file.type.startsWith('video') ? 'video' : 'image') : null })
             });
 
-            fb.textContent = "Annonce publiée !"; fb.style.color = "var(--primary)";
+            fb.innerHTML = "<span style='color:var(--neon-green)'>Annonce publiée avec succès !</span>";
             document.getElementById('adminForm').reset();
             Admin.loadAnnonces();
-        } catch (e) { fb.textContent = "Erreur de publication."; fb.style.color = "var(--danger)"; }
-        btn.disabled = false; btn.textContent = 'Publier l\'annonce';
+        } catch (e) { fb.innerHTML = "<span style='color:var(--danger)'>Erreur lors de la publication.</span>"; }
+        btn.disabled = false; btn.textContent = 'Publier Maintenant';
     },
 
     loadReviews: async () => {
         const list = document.getElementById('reviewsAdminList');
         if (!list) return;
-        list.innerHTML = '<p>Chargement...</p>';
         try {
             const res = await fetch(`${SUPABASE_URL}/rest/v1/reviews?select=*&order=created_at.desc`, {
                 headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
             });
             const data = await res.json();
-            list.innerHTML = data.length === 0 ? '<div>Aucun avis client.</div>' : '';
+            list.innerHTML = data.length === 0 ? '<p>Aucun avis client à modérer.</p>' : '';
             data.forEach(r => {
                 const div = document.createElement('div');
-                div.className = 'admin-item glass-panel';
-                div.style.marginBottom = '1rem'; 
-                div.style.borderLeft = r.approuve ? '4px solid var(--primary)' : '4px solid #f39c12';
-                
+                div.className = 'admin-item';
+                div.style.marginBottom = '1.5rem'; div.style.padding = '1.5rem';
                 div.innerHTML = `
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <div>
                             <h4 style="margin:0;">${r.nom} <span style="color:#ffc107;">${'★'.repeat(r.note)}</span></h4>
                             <small>${new Date(r.created_at).toLocaleDateString()}</small>
                         </div>
-                        <div style="display:flex; gap:0.5rem;">
-                            <button class="btn btn-sm ${r.approuve ? 'btn-secondary' : 'btn-primary'}" 
-                                onclick="Admin.toggleReview('${r.id}', ${!r.approuve})">
-                                ${r.approuve ? 'Cacher' : 'Approuver'}
+                        <div style="display:flex; gap:10px;">
+                            <button class="btn btn-sm ${r.approuve ? 'btn-secondary' : 'btn-primary'}" onclick="Admin.toggleReview('${r.id}', ${!r.approuve})">
+                                ${r.approuve ? 'Masquer' : 'Approuver'}
                             </button>
                             <button class="btn btn-danger btn-sm" onclick="Admin.deleteItem('reviews', '${r.id}')">Supprimer</button>
                         </div>
                     </div>
-                    <div style="margin-top:10px; font-style:italic; font-size:0.9rem;">"${r.commentaire}"</div>
+                    <p style="margin-top:15px; font-style:italic;">"${r.commentaire}"</p>
                 `;
                 list.appendChild(div);
             });
-        } catch (e) { list.innerHTML = 'Erreur de chargement avis.'; }
+        } catch (e) { console.error(e); }
     },
 
     toggleReview: async (id, status) => {
         try {
             await fetch(`${SUPABASE_URL}/rest/v1/reviews?id=eq.${id}`, {
                 method: 'PATCH',
-                headers: { 
-                    'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`,
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify({ approuve: status })
             });
             Admin.loadReviews();
-        } catch (e) { alert("Erreur modération."); }
-    },
-
-    loadStats: async () => {
-        const list = document.getElementById('visitsList');
-        if (!list) return;
-        list.innerHTML = '<p>Analyse des données...</p>';
-        try {
-            const res = await fetch(`${SUPABASE_URL}/rest/v1/visits?select=*&order=created_at.desc`, {
-                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-            });
-            const visits = await res.json();
-            
-            const now = new Date();
-            const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-            const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
-            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-            const startOfYear = new Date(now.getFullYear(), 0, 1);
-
-            const dayVisits = visits.filter(v => new Date(v.created_at) >= startOfDay).length;
-            const weekVisits = visits.filter(v => new Date(v.created_at) >= startOfWeek).length;
-            const monthVisits = visits.filter(v => new Date(v.created_at) >= startOfMonth).length;
-            const yearVisits = visits.filter(v => new Date(v.created_at) >= startOfYear).length;
-
-            document.getElementById('visits-day').textContent = dayVisits;
-            document.getElementById('visits-week').textContent = weekVisits;
-            document.getElementById('visits-month').textContent = monthVisits;
-            document.getElementById('visits-year').textContent = yearVisits;
-
-            list.innerHTML = '';
-            visits.slice(0, 20).forEach(v => {
-                const div = document.createElement('div');
-                div.className = 'admin-item glass-panel';
-                div.style.marginBottom = '0.5rem'; div.style.padding = '1rem'; div.style.fontSize = '0.85rem';
-                div.innerHTML = `
-                    <div style="display:flex; justify-content:space-between;">
-                        <span><strong>Page:</strong> ${v.page}</span>
-                        <small>${new Date(v.created_at).toLocaleString()}</small>
-                    </div>
-                    <div style="color:var(--text-muted); font-size:0.75rem; margin-top:5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-                        ${v.user_agent}
-                    </div>
-                `;
-                list.appendChild(div);
-            });
-        } catch (e) { list.innerHTML = 'Erreur stats.'; }
+        } catch (e) { console.error(e); }
     },
 
     loadRequests: async () => {
         const list = document.getElementById('requestsList');
         if (!list) return;
-        list.innerHTML = '<p>Chargement...</p>';
         try {
             const res = await fetch(`${SUPABASE_URL}/rest/v1/requests?select=*&order=created_at.desc`, {
                 headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
             });
             const data = await res.json();
-            list.innerHTML = data.length === 0 ? '<div>Aucune demande.</div>' : '';
+            list.innerHTML = data.length === 0 ? '<p>Aucune demande de devis.</p>' : '';
             data.forEach(r => {
                 const div = document.createElement('div');
-                div.className = 'admin-item glass-panel';
-                div.style.marginBottom = '1rem'; div.style.borderLeft = '4px solid var(--primary)';
+                div.className = 'admin-item';
+                div.style.marginBottom = '1.5rem'; div.style.padding = '1.5rem';
                 div.innerHTML = `
-                    <div style="display:flex; justify-content:space-between;">
-                        <h4>${r.nom} <small>(${r.service || 'Devis'})</small></h4>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <h4 style="margin:0; color:var(--neon-green)">${r.nom} <small style="color:var(--text-muted)">(${r.service || 'Devis'})</small></h4>
                         <button class="btn btn-danger btn-sm" onclick="Admin.deleteItem('requests', '${r.id}')">Archiver</button>
                     </div>
-                    <p style="font-size:0.9rem; margin:10px 0;">${r.message}</p>
-                    <small>${r.email} | ${r.telephone || 'N/A'}</small>
+                    <div style="margin:15px 0;">
+                        <strong>Véhicule:</strong> ${r.vehicule || 'N/A'}<br>
+                        <strong>Description:</strong> ${r.message}
+                    </div>
+                    <small style="color:var(--text-muted)">Contact: ${r.email} | ${r.telephone || 'N/A'}</small>
                 `;
                 list.appendChild(div);
             });
-        } catch (e) { list.innerHTML = 'Erreur de chargement.'; }
+        } catch (e) { console.error(e); }
     },
 
     deleteItem: async (table, id) => {
-        if (!confirm("Confirmer la suppression ?")) return;
+        if (!confirm("Voulez-vous vraiment supprimer cet élément ?")) return;
         try {
             await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
                 method: 'DELETE',
@@ -425,6 +427,11 @@ const Admin = {
             else if (table === 'reviews') Admin.loadReviews();
             else Admin.loadRequests();
         } catch (e) { alert("Erreur lors de la suppression."); }
+    },
+
+    logout: () => {
+        Router.setLogin('false');
+        window.location.reload();
     }
 };
 
@@ -433,6 +440,6 @@ document.addEventListener('DOMContentLoaded', () => {
     Router.navigate();
 });
 
-// For global onclick handlers
+// For global scope exposure
 window.Admin = Admin;
 window.Router = Router;

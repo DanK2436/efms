@@ -273,74 +273,158 @@ body.login-mode .login-wrapper {
     40%, 60% { transform: translateZ(30px) translateX(4px); }
 }
 
-/* DASHBOARD COMMON STYLES */
-.admin-tabs {
+/* DASHBOARD LAYOUT (Sidebar + Content) */
+.admin-layout {
     display: flex;
-    gap: 1.5rem;
-    margin-bottom: 3rem;
-    background: rgba(0, 0, 0, 0.4);
-    padding: 0.6rem;
-    border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    min-height: 100vh;
 }
 
-.tab-btn {
-    flex: 1;
-    padding: 1.2rem;
-    border: none;
-    background: transparent;
+.admin-sidebar {
+    width: 280px;
+    background: rgba(11, 14, 17, 0.95);
+    border-right: 1px solid var(--glass-border);
+    backdrop-filter: blur(20px);
+    display: flex;
+    flex-direction: column;
+    padding: 2rem 1rem;
+    position: fixed;
+    height: 100vh;
+    z-index: 100;
+}
+
+.sidebar-header {
+    padding: 0 1rem 3rem 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    margin-bottom: 2rem;
+}
+
+.sidebar-logo {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    border: 1px solid var(--neon-green);
+    margin-bottom: 1rem;
+}
+
+.sidebar-menu {
+    list-style: none;
+    flex-grow: 1;
+}
+
+.sidebar-item {
+    margin-bottom: 0.5rem;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
     color: var(--text-muted);
-    font-weight: 700;
-    cursor: pointer;
+    text-decoration: none;
     border-radius: 14px;
+    font-weight: 600;
     transition: all 0.3s ease;
+    cursor: pointer;
 }
 
-.tab-btn.active {
+.sidebar-link:hover {
+    background: rgba(124, 207, 43, 0.05);
+    color: #fff;
+}
+
+.sidebar-link.active {
     background: linear-gradient(135deg, rgba(124, 207, 43, 0.2), rgba(124, 207, 43, 0.05));
     color: var(--neon-green);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-    border: 1px solid rgba(124, 207, 43, 0.2);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    border: 1px solid rgba(124, 207, 43, 0.1);
 }
 
-.admin-panel, .admin-item {
+.sidebar-footer {
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.admin-main {
+    flex-grow: 1;
+    margin-left: 280px;
+    padding: 3rem;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3rem;
+}
+
+.admin-header h2 {
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+.admin-header h2 span {
+    color: var(--neon-green);
+}
+
+/* Stats Cards */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.stat-card {
     background: var(--glass-bg);
-    -webkit-backdrop-filter: blur(20px);
-    backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border);
-    border-radius: 24px;
-    padding: 2.5rem;
-    box-shadow: 0 30px 60px rgba(0,0,0,0.5);
-    margin-bottom: 2rem;
+    padding: 2rem;
+    border-radius: 20px;
+    text-align: center;
     transition: transform 0.3s ease;
 }
 
-.admin-item:hover {
+.stat-card:hover {
     transform: translateY(-5px);
-    border-color: rgba(124, 207, 43, 0.5);
 }
 
-.fade-in {
-    animation: fadeReveal 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+.stat-card h3 {
+    font-size: 2.5rem;
+    color: var(--neon-green);
+    margin-bottom: 0.5rem;
 }
 
-@keyframes fadeReveal {
-    0% { opacity: 0; transform: translateY(30px); }
-    100% { opacity: 1; transform: translateY(0); }
+.stat-card p {
+    color: var(--text-muted);
+    font-weight: 600;
 }
 
-.btn-danger {
-    background: linear-gradient(135deg, #e63946, #cc2e3b);
-    color: #fff;
-    border: none;
-    padding: 0.7rem 1.4rem;
-    border-radius: 10px;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(230, 57, 70, 0.3);
+/* Forms and Lists */
+.admin-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    padding: 2.5rem;
+    border-radius: 24px;
+    margin-bottom: 2rem;
 }
 
-.btn-danger:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(230, 57, 70, 0.4);
+/* Overriding index.css container if needed */
+.admin-layout main.container {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+}
+
+@media (max-width: 1024px) {
+    .admin-sidebar {
+        width: 80px;
+        padding: 2rem 0.5rem;
+    }
+    .sidebar-link span, .sidebar-header h3 {
+        display: none;
+    }
+    .admin-main {
+        margin-left: 80px;
+        padding: 2rem;
+    }
 }
