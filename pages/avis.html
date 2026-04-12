@@ -171,7 +171,8 @@
     </footer>
 
     <script>
-        const API_URL = 'http://localhost:3000/api';
+        const SB_URL = 'https://fgjbcvczxrzkffeqfndk.supabase.co/rest/v1';
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZnamJjdmN6eHJ6a2ZmZXFmbmRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxODQ3MjUsImV4cCI6MjA4OTc2MDcyNX0.uFqvuAzxIz3eznxdx4biwFjNSfvPvehJ8LOAlSelgbM';
         let currentRating = 5;
 
         // Rating interaction
@@ -180,9 +181,12 @@
 
         function updateStars(val) {
             stars.forEach(s => {
-                if (parseInt(s.dataset.value) <= val) {
+                const sVal = parseInt(s.getAttribute('data-value'));
+                if (sVal <= val) {
+                    s.style.color = '#ffc107';
                     s.classList.add('active');
                 } else {
+                    s.style.color = '#94a3b8';
                     s.classList.remove('active');
                 }
             });
@@ -193,14 +197,20 @@
         updateStars(5);
 
         stars.forEach(s => {
-            s.addEventListener('click', () => updateStars(parseInt(s.dataset.value)));
+            s.addEventListener('click', (e) => {
+                e.preventDefault();
+                const v = parseInt(s.getAttribute('data-value'));
+                updateStars(v);
+            });
         });
 
         // Load reviews
         async function loadReviews() {
             const list = document.getElementById('reviewsList');
             try {
-                const res = await fetch(`${API_URL}/reviews`);
+                const res = await fetch(`${SB_URL}/reviews?approuve=eq.true&select=*&order=created_at.desc`, {
+                    headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
+                });
                 const reviews = await res.json();
                 
                 if (reviews.length === 0) {
@@ -237,29 +247,35 @@
             const data = {
                 nom: document.getElementById('reviewName').value,
                 commentaire: document.getElementById('reviewComment').value,
-                note: parseInt(currentRating)
+                note: parseInt(currentRating),
+                approuve: false // Explicitly set to false (moderation)
             };
 
             btn.disabled = true;
             btn.textContent = 'Envoi...';
 
             try {
-                const res = await fetch(`${API_URL}/reviews`, {
+                const res = await fetch(`${SB_URL}/reviews`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'apikey': SB_KEY,
+                        'Authorization': `Bearer ${SB_KEY}`,
+                        'Prefer': 'return=minimal'
+                    },
                     body: JSON.stringify(data)
                 });
 
                 if (res.ok) {
                     fb.textContent = 'Merci ! Votre avis a été soumis et sera visible après validation.';
-                    fb.style.color = 'var(--primary)';
+                    fb.style.color = '#7ccf2b';
                     document.getElementById('reviewForm').reset();
                     updateStars(5);
                 } else {
                     throw new Error('Server error');
                 }
             } catch (err) {
-                fb.textContent = 'Erreur lors de l\'envoi. Veuillez réessayer.';
+                fb.textContent = 'Erreur lors de l\'envoi. Veuillez vérifier votre connexion.';
                 fb.style.color = 'red';
             } finally {
                 btn.disabled = false;

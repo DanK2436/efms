@@ -53,11 +53,14 @@
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             const listContainer = document.getElementById('announcementsList');
-            const API_URL = 'http://localhost:3000/api';
+            const SB_URL = 'https://fgjbcvczxrzkffeqfndk.supabase.co/rest/v1';
+            const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZnamJjdmN6eHJ6a2ZmZXFmbmRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxODQ3MjUsImV4cCI6MjA4OTc2MDcyNX0.uFqvuAzxIz3eznxdx4biwFjNSfvPvehJ8LOAlSelgbM';
 
             try {
                 listContainer.innerHTML = '<p style="text-align:center;">Chargement des annonces...</p>';
-                const res = await fetch(`${API_URL}/annonces`);
+                const res = await fetch(`${SB_URL}/annonces?select=*&order=created_at.desc`, {
+                    headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
+                });
                 if (!res.ok) throw new Error("Server Error");
                 let annonces = await res.json();
                 

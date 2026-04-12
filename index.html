@@ -544,20 +544,24 @@
 
     <script src="assets/js/index.js"></script>
     <script>
-        // Load some reviews for the home page
+        // Load some reviews for the home page via Supabase
         document.addEventListener('DOMContentLoaded', async () => {
             const list = document.getElementById('home-reviews-list');
             if (!list) return;
+            const SB_URL = 'https://fgjbcvczxrzkffeqfndk.supabase.co/rest/v1';
+            const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZnamJjdmN6eHJ6a2ZmZXFmbmRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxODQ3MjUsImV4cCI6MjA4OTc2MDcyNX0.uFqvuAzxIz3eznxdx4biwFjNSfvPvehJ8LOAlSelgbM';
+
             try {
-                const res = await fetch('http://localhost:3000/api/reviews');
+                const res = await fetch(`${SB_URL}/reviews?approuve=eq.true&select=*&order=created_at.desc&limit=3`, {
+                    headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
+                });
                 const reviews = await res.json();
-                const limit = reviews.slice(0, 3);
                 
-                if (limit.length === 0) {
+                if (reviews.length === 0) {
                     list.innerHTML = '<p style="text-align:center; grid-column:1/-1;">Aucun avis pour le moment.</p>';
                 } else {
                     list.innerHTML = '';
-                    limit.forEach(r => {
+                    reviews.forEach(r => {
                         const div = document.createElement('div');
                         div.className = 'review-card';
                         div.style.background = 'var(--card-bg)';
@@ -575,7 +579,7 @@
                     });
                 }
             } catch (err) {
-                list.innerHTML = '';
+                list.innerHTML = '<p style="text-align:center; grid-column:1/-1;">Découvrez nos avis clients sur la page dédiée.</p>';
             }
         });
     </script>
