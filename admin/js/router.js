@@ -110,6 +110,12 @@ const Views = {
                 <p>Année</p>
             </div>
         </div>
+        <div class="admin-card stats-chart-card fade-in">
+            <h3>Analyse de Trafic</h3>
+            <div class="chart-container" style="position: relative; height:300px; width:100%;">
+                <canvas id="visitorChart"></canvas>
+            </div>
+        </div>
         <div class="admin-card">
             <h3>Flux de Visiteurs en Temps Réel</h3>
             <div id="visitsList" style="margin-top:1.5rem;"></div>
@@ -298,6 +304,9 @@ const Admin = {
             document.getElementById('visits-month').textContent = visits.filter(v => new Date(v.created_at) >= sMonth).length;
             document.getElementById('visits-year').textContent = visits.filter(v => new Date(v.created_at) >= sYear).length;
 
+            // Generate Chart data (last 7 days)
+            Admin.initChart(visits);
+
             list.innerHTML = '';
             visits.slice(0, 15).forEach(v => {
                 const div = document.createElement('div');
@@ -472,6 +481,66 @@ const Admin = {
             const isHidden = container.style.display === 'none';
             container.style.display = isHidden ? 'block' : 'none';
         }
+    },
+
+    initChart: (visits) => {
+        const ctx = document.getElementById('visitorChart');
+        if (!ctx) return;
+        
+        // Group by day for last 7 days
+        const labels = [];
+        const data = [];
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            const dateStr = date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+            labels.push(dateStr);
+            
+            const count = visits.filter(v => {
+                const vDate = new Date(v.created_at);
+                return vDate.getDate() === date.getDate() && vDate.getMonth() === date.getMonth();
+            }).length;
+            data.push(count);
+        }
+
+        if (window.myChart) window.myChart.destroy();
+
+        window.myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Visiteurs',
+                    data: data,
+                    borderColor: '#7ccf2b',
+                    backgroundColor: 'rgba(124, 207, 43, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#7ccf2b',
+                    pointBorderColor: '#fff',
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: { color: 'rgba(255,255,255,0.5)' }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: 'rgba(255,255,255,0.5)' }
+                    }
+                }
+            }
+        });
     }
 };
 

@@ -1,16 +1,24 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // ===== Visit Tracking =====
+    // ===== Visit Tracking (Powered by Supabase) =====
+    const SB_URL = 'https://fgjbcvczxrzkffeqfndk.supabase.co/rest/v1';
+    const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZnamJjdmN6eHJ6a2ZmZXFmbmRrIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NDE4NDcyNSwiZXhwIjoyMDg5NzYwNzI1fQ.UiAriYMyR449hHmoTu3OJMkwvCrt_QbEqs7FWU0IZ7w';
+
     const logVisit = async () => {
         try {
-            await fetch('http://localhost:3000/api/visits', {
+            await fetch(`${SB_URL}/visits`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'apikey': SB_KEY,
+                    'Authorization': `Bearer ${SB_KEY}`,
+                    'Prefer': 'return=minimal'
+                },
                 body: JSON.stringify({
                     page: window.location.pathname,
                     user_agent: navigator.userAgent
                 })
             });
-        } catch (e) { /* silent fail */ }
+        } catch (e) { console.error("Tracking error:", e); }
     };
     logVisit();
     // ===== Scroll Reveal =====
