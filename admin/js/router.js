@@ -440,49 +440,77 @@ const Admin = {
                 div.id = `req-${r.id}`;
                 
                 div.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <div>
-                            <h4 style="margin:0;">${r.nom} <small style="color:var(--neon-green)">(${r.service || 'Devis'})</small></h4>
-                            <p style="margin:5px 0 0 0; font-size:0.85rem; color:var(--text-muted);">${r.message.substring(0, 50)}...</p>
+                    <div class="request-item-summary fade-in" id="summary-${r.id}" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; padding-bottom: 0.5rem;" onclick="Admin.toggleReqDetail('${r.id}')">
+                        <div style="flex: 1; min-width: 0; padding-right: 15px;">
+                            <h4 style="margin:0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${r.nom} <small style="color:var(--neon-green)">(${r.service || 'Devis'})</small></h4>
+                            <p style="margin:5px 0 0 0; font-size:0.85rem; color:var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${r.message.substring(0, 50)}...</p>
                         </div>
-                        <div style="display:flex; gap:10px;">
-                            <button class="btn btn-secondary btn-sm" onclick="Admin.toggleReqDetail('${r.id}')">Voir</button>
-                            <div style="position:relative; display:inline-block;">
-                                <button class="btn btn-primary btn-sm" onclick="Admin.toggleReplyMenu('${r.id}')" style="display:flex; align-items:center; gap:5px;">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"></path></svg>
-                                    Répondre
-                                </button>
-                                <div id="reply-menu-${r.id}" class="fade-in" style="display:none; position:absolute; right:0; top:100%; margin-top:8px; background:#1a1e22; border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:8px; z-index:100; box-shadow:0 5px 15px rgba(0,0,0,0.5); width:max-content;">
-                                    <button onclick="Admin.replyVia('gmail', '${r.email}', '${r.nom}', '${r.id}')" style="display:block; width:100%; text-align:left; background:rgba(234, 67, 53, 0.1); border:1px solid rgba(234, 67, 53, 0.3); color:#fff; padding:8px 12px; border-radius:4px; margin-bottom:5px; cursor:pointer; font-weight:600;">
-                                        Ouvrir avec Gmail
-                                    </button>
-                                    <button onclick="Admin.replyVia('outlook', '${r.email}', '${r.nom}', '${r.id}')" style="display:block; width:100%; text-align:left; background:rgba(0, 114, 198, 0.1); border:1px solid rgba(0, 114, 198, 0.3); color:#fff; padding:8px 12px; border-radius:4px; cursor:pointer; font-weight:600;">
-                                        Ouvrir avec Outlook
-                                    </button>
+                        <div style="color:var(--text-muted); flex-shrink: 0; transition: transform 0.3s;" id="req-icon-${r.id}">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                        </div>
+                    </div>
+                    
+                    <div class="request-details fade-in" id="detail-${r.id}" style="display:none; margin-top:15px;">
+                        <div class="admin-card" style="padding: clamp(1.5rem, 5vw, 3.5rem); margin-bottom: 1rem; box-shadow: 0 30px 60px rgba(0,0,0,0.6); border: 2px solid var(--neon-green);">
+                            <h3 style="display:flex; align-items:center; gap:15px; margin-bottom:2.5rem; font-size:clamp(1.5rem, 5vw, 2rem); color:var(--neon-green); letter-spacing:-1px;">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                <span>Message de <strong style="color:#fff;">${r.nom}</strong></span>
+                            </h3>
+                            
+                            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap:1.5rem; margin-bottom:2rem;">
+                                <div class="form-group" style="margin-bottom:0;">
+                                    <label>Client</label>
+                                    <div style="width:100%; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:1rem; color:#fff; font-size:0.95rem; font-weight:600; overflow-wrap:break-word;">
+                                        ${r.nom}
+                                    </div>
+                                </div>
+                                <div class="form-group" style="margin-bottom:0;">
+                                    <label>Email Contact</label>
+                                    <div style="width:100%; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:1rem; color:#fff; font-size:0.95rem; font-family:monospace; overflow-wrap:break-word; word-break:break-all;">
+                                        ${r.email}
+                                    </div>
+                                </div>
+                                <div class="form-group" style="margin-bottom:0;">
+                                    <label>Téléphone</label>
+                                    <div style="width:100%; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:1rem; color:#fff; font-size:0.95rem; overflow-wrap:break-word;">
+                                        ${r.telephone || '<span style="color:var(--text-muted)">Non renseigné</span>'}
+                                    </div>
+                                </div>
+                                <div class="form-group" style="margin-bottom:0;">
+                                    <label>Véhicule concerné</label>
+                                    <div style="width:100%; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:1rem; color:var(--neon-green); font-size:0.95rem; font-weight:700; overflow-wrap:break-word; word-break:break-all;">
+                                        ${r.vehicule || 'N/A'}
+                                    </div>
                                 </div>
                             </div>
+                            
+                            <div class="form-group" style="margin-bottom:3rem;">
+                                <label style="font-size:1.1rem; color:var(--neon-green); margin-bottom:1rem;">Motif du contact</label>
+                                <div style="width:100%; background:rgba(0,0,0,0.6); border:1px solid rgba(124, 207, 43, 0.4); border-radius:16px; padding:clamp(1.5rem, 4vw, 2rem); color:#fff; font-size:1.15rem; line-height:1.8; overflow-wrap:break-word; word-break:break-word; min-height:150px; box-shadow:inset 0 4px 15px rgba(0,0,0,0.5);">
+                                    ${r.message}
+                                </div>
+                            </div>
+                            
+                            <!-- Action Buttons Bottom -->
+                            <div class="req-actions-container" style="display:flex; flex-wrap:wrap; gap:10px; border-top:1px solid rgba(255,255,255,0.08); padding-top:1.5rem;">
+                                <button class="btn btn-secondary req-btn" onclick="Admin.toggleReqDetail('${r.id}')" style="flex:1; min-width:100px; padding:1rem 0.5rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; border-radius:12px;">Fermer</button>
+                                
+                                <div style="position:relative; flex:2; min-width:180px; display:flex;" class="req-btn">
+                                    <button class="btn btn-primary" onclick="Admin.toggleReplyMenu('${r.id}')" style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:1rem 0.5rem; font-weight:800; text-transform:uppercase; letter-spacing:1px; border-radius:12px;">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"></path></svg>
+                                        Répondre
+                                    </button>
+                                    <div id="reply-menu-${r.id}" class="fade-in" style="display:none; position:absolute; bottom:100%; left:0; width:100%; margin-bottom:12px; background:#1a1e22; border:1px solid var(--neon-green); border-radius:12px; padding:12px; z-index:100; box-shadow:0 -10px 40px rgba(0,0,0,0.8);">
+                                        <button onclick="Admin.replyVia('gmail', '${r.email}', '${r.nom}', '${r.id}')" style="display:block; width:100%; text-align:center; background:rgba(234, 67, 53, 0.15); border:1px solid rgba(234, 67, 53, 0.5); color:#fff; padding:12px; border-radius:8px; margin-bottom:8px; cursor:pointer; font-weight:700; font-size:0.95rem; text-transform:uppercase; transition:all 0.3s ease;">Ouvrir Gmail</button>
+                                        <button onclick="Admin.replyVia('outlook', '${r.email}', '${r.nom}', '${r.id}')" style="display:block; width:100%; text-align:center; background:rgba(0, 114, 198, 0.15); border:1px solid rgba(0, 114, 198, 0.5); color:#fff; padding:12px; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.95rem; text-transform:uppercase; transition:all 0.3s ease;">Ouvrir Outlook</button>
+                                    </div>
+                                </div>
+                                
+                                <button class="btn btn-danger req-btn" onclick="Admin.deleteItem('requests', '${r.id}')" style="flex:1; min-width:100px; padding:1rem 0.5rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; border-radius:12px;">Archiver</button>
+                            </div>
                         </div>
                     </div>
-                    <div class="request-details fade-in" id="detail-${r.id}" style="display:none; margin-top:20px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.05);">
-                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
-                            <div>
-                                <small style="color:var(--text-muted)">Contact :</small>
-                                <p style="margin:5px 0;">[Email] ${r.email}</p>
-                                <p style="margin:5px 0;">[Tel] ${r.telephone || 'Non renseigné'}</p>
-                            </div>
-                            <div>
-                                <small style="color:var(--text-muted)">Véhicule :</small>
-                                <p style="margin:5px 0;">[Auto] ${r.vehicule || 'N/A'}</p>
-                            </div>
-                        </div>
-                        <div style="margin-top:15px;">
-                            <small style="color:var(--text-muted)">Message complet :</small>
-                            <p style="margin-top:10px; line-height:1.6; background:rgba(0,0,0,0.2); padding:1rem; border-radius:12px;">${r.message}</p>
-                        </div>
-                        <div style="margin-top:15px; display:flex; justify-content:flex-end;">
-                            <button class="btn btn-danger btn-sm" onclick="Admin.deleteItem('requests', '${r.id}')">Archiver cette demande</button>
-                        </div>
-                    </div>
+
                 `;
                 list.appendChild(div);
             });
@@ -490,13 +518,39 @@ const Admin = {
     },
 
     toggleReqDetail: (id) => {
-        const el = document.getElementById(`detail-${id}`);
-        if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        const detailEl = document.getElementById(`detail-${id}`);
+        const summaryEl = document.getElementById(`summary-${id}`);
+        const isHidden = detailEl ? detailEl.style.display === 'none' : true;
         
-        // Fermer le menu de réponse s'il est ouvert
-        const menu = document.getElementById(`reply-menu-${id}`);
-        if (menu) menu.style.display = 'none';
+        // Reset all icons, hide all details, restore all summaries
+        document.querySelectorAll('[id^=detail-]').forEach(detail => {
+            detail.style.display = 'none';
+        });
+        document.querySelectorAll('[id^=summary-]').forEach(summary => {
+            summary.style.display = 'flex';
+        });
+        document.querySelectorAll('[id^=req-icon-]').forEach(icon => {
+            icon.style.transform = 'rotate(0deg)';
+            icon.style.color = 'var(--text-muted)';
+        });
+        
+        // Show clicked detail, hide its summary, rotate its icon
+        if (detailEl && isHidden) {
+            detailEl.style.display = 'block';
+            if (summaryEl) summaryEl.style.display = 'none';
+            const icon = document.getElementById(`req-icon-${id}`);
+            if (icon) {
+                icon.style.transform = 'rotate(180deg)';
+                icon.style.color = 'var(--neon-green)';
+            }
+        }
+        
+        // Fermer tous les menus de réponse
+        document.querySelectorAll('[id^=reply-menu-]').forEach(menu => {
+            menu.style.display = 'none';
+        });
     },
+
 
     toggleReplyMenu: (id) => {
         const menu = document.getElementById(`reply-menu-${id}`);
