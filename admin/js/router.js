@@ -447,10 +447,20 @@ const Admin = {
                         </div>
                         <div style="display:flex; gap:10px;">
                             <button class="btn btn-secondary btn-sm" onclick="Admin.toggleReqDetail('${r.id}')">Voir</button>
-                            <button class="btn btn-primary btn-sm" onclick="Admin.directReply('${r.email}', '${r.nom}', '${r.id}')" style="display:flex; align-items:center; gap:5px;">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"></path></svg>
-                                Répondre
-                            </button>
+                            <div style="position:relative; display:inline-block;">
+                                <button class="btn btn-primary btn-sm" onclick="Admin.toggleReplyMenu('${r.id}')" style="display:flex; align-items:center; gap:5px;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"></path></svg>
+                                    Répondre
+                                </button>
+                                <div id="reply-menu-${r.id}" class="fade-in" style="display:none; position:absolute; right:0; top:100%; margin-top:8px; background:#1a1e22; border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:8px; z-index:100; box-shadow:0 5px 15px rgba(0,0,0,0.5); width:max-content;">
+                                    <button onclick="Admin.replyVia('gmail', '${r.email}', '${r.nom}', '${r.id}')" style="display:block; width:100%; text-align:left; background:rgba(234, 67, 53, 0.1); border:1px solid rgba(234, 67, 53, 0.3); color:#fff; padding:8px 12px; border-radius:4px; margin-bottom:5px; cursor:pointer; font-weight:600;">
+                                        Ouvrir avec Gmail
+                                    </button>
+                                    <button onclick="Admin.replyVia('outlook', '${r.email}', '${r.nom}', '${r.id}')" style="display:block; width:100%; text-align:left; background:rgba(0, 114, 198, 0.1); border:1px solid rgba(0, 114, 198, 0.3); color:#fff; padding:8px 12px; border-radius:4px; cursor:pointer; font-weight:600;">
+                                        Ouvrir avec Outlook
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="request-details fade-in" id="detail-${r.id}" style="display:none; margin-top:20px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.05);">
@@ -482,12 +492,35 @@ const Admin = {
     toggleReqDetail: (id) => {
         const el = document.getElementById(`detail-${id}`);
         if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        
+        // Fermer le menu de réponse s'il est ouvert
+        const menu = document.getElementById(`reply-menu-${id}`);
+        if (menu) menu.style.display = 'none';
     },
 
-    directReply: (email, nom, id) => {
-        const subject = `Réponse EFMS - Devis ${id.substring(0,8)}`;
-        const body = `Bonjour ${nom},\n\nNous avons bien reçu votre demande sur notre site EFMS.\n\n[Votre réponse ici]\n\nCordialement,\nL'équipe EFMS`;
-        window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    toggleReplyMenu: (id) => {
+        const menu = document.getElementById(`reply-menu-${id}`);
+        // Fermer tous les menus de réponse d'abord
+        document.querySelectorAll('[id^=reply-menu-]').forEach(m => {
+            if (m.id !== `reply-menu-${id}`) m.style.display = 'none';
+        });
+        if (menu) menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+    },
+
+    replyVia: (client, email, nom, id) => {
+        const subject = encodeURIComponent(`Réponse EFMS - Devis ${id.substring(0,8)}`);
+        const body = encodeURIComponent(`Bonjour ${nom},\n\nNous avons bien reçu votre demande sur notre site EFMS.\n\n[Votre réponse ici]\n\nCordialement,\nL'équipe EFMS`);
+        
+        Admin.toggleReplyMenu(id); // Fermer le menu après le clic
+        
+        let url = '';
+        if (client === 'gmail') {
+            url = `https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${subject}&body=${body}`;
+        } else if (client === 'outlook') {
+            url = `https://outlook.live.com/mail/0/deeplink/compose?to=${email}&subject=${subject}&body=${body}`;
+        }
+        
+        window.open(url, '_blank');
     },
 
     deleteItem: async (table, id) => {
