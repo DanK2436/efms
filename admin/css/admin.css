@@ -137,10 +137,9 @@ body.login-mode .login-wrapper {
 
 /* 3D CONTENT LAYERS */
 .login-content {
-    transform: translateZ(5px); /* Reduced from 40px to ensure inputs are clickable */
-    transform-style: preserve-3d;
+    transform: none; /* Removing Z-transform to prevent interaction issues */
     position: relative;
-    z-index: 5;
+    z-index: 50; /* Ensure content is above any background effects */
 }
 
 .logo-3d {
@@ -155,12 +154,12 @@ body.login-mode .login-wrapper {
     border: 1px solid rgba(124, 207, 43, 0.5);
     box-shadow: 0 15px 30px rgba(0,0,0,0.5), inset 0 2px 5px rgba(255,255,255,0.2);
     color: var(--neon-green);
-    transform: translateZ(20px) rotate(-10deg);
+    transform: rotate(-10deg);
     transition: transform 0.4s ease;
 }
 
 .card-3d:hover .logo-3d {
-    transform: translateZ(30px) rotate(0deg);
+    transform: rotate(0deg);
 }
 
 .title-3d {
@@ -171,7 +170,7 @@ body.login-mode .login-wrapper {
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    transform: translateZ(10px);
+    transform: none;
     letter-spacing: -1px;
 }
 
@@ -183,14 +182,14 @@ body.login-mode .login-wrapper {
     letter-spacing: 4px;
     margin-bottom: 2.5rem; /* Reduced margin */
     display: block;
-    transform: translateZ(5px);
+    transform: none;
 }
 
 /* PRECISE INPUT DESIGN */
 .input-3d-group {
     text-align: left;
     margin-bottom: 1.8rem;
-    transform: translateZ(0px);
+    transform: none;
 }
 
 .input-3d-group label {
@@ -238,7 +237,7 @@ body.login-mode .login-wrapper {
     width: 100%;
     cursor: pointer;
     box-shadow: 0 10px 25px rgba(124, 207, 43, 0.4), 0 4px 0 #4a8d16;
-    transform: translateZ(50px);
+    transform: none;
     transition: all 0.2s ease;
     margin-top: 1rem;
 }

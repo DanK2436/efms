@@ -146,18 +146,22 @@ const Router = {
             btn.disabled = true;
 
             try {
-                const res = await fetch(`${SUPABASE_URL}/rest/v1/users?email=eq.${u}&password=eq.${p}`, {
+                const encodedEmail = encodeURIComponent(u);
+                const encodedPass = encodeURIComponent(p);
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/users?email=eq.${encodedEmail}&password=eq.${encodedPass}`, {
                     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
                 });
                 const users = await res.json();
 
-                if (users.length > 0) {
+                if (users && users.length > 0) {
                     Router.setLogin('true');
                     Router.navigate();
                 } else {
+                    console.error("Login failed: User not found in database.");
                     throw new Error('Identifiants incorrects');
                 }
             } catch (error) {
+                console.error("Auth error:", error);
                 err.style.display = 'block';
                 btn.textContent = 'Se Connecter';
                 btn.disabled = false;
