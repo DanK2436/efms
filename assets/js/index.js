@@ -1,4 +1,18 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // ===== Visit Tracking =====
+    const logVisit = async () => {
+        try {
+            await fetch('http://localhost:3000/api/visits', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    page: window.location.pathname,
+                    user_agent: navigator.userAgent
+                })
+            });
+        } catch (e) { /* silent fail */ }
+    };
+    logVisit();
     // ===== Scroll Reveal =====
     const revealElements = document.querySelectorAll('[data-reveal]');
     const revealOnScroll = () => {

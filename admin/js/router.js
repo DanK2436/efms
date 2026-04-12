@@ -19,7 +19,7 @@ const Views = {
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" /></svg>
                     </div>
                     <h2 class="title-3d">EFMS Portal</h2>
-                    <p class="subtitle-3d">AccËs SÈcurisÈ (Supabase)</p>
+                    <p class="subtitle-3d">Acc√®s S√©curis√© (Supabase)</p>
                     <div id="auth-error" class="auth-error">Identifiants incorrects</div>
                     <form id="login-form">
                         <div class="form-group input-3d-group">
@@ -28,7 +28,7 @@ const Views = {
                         </div>
                         <div class="form-group input-3d-group">
                             <label for="password">Mot de passe</label>
-                            <input type="password" id="password" placeholder="ïïïïïïïï" required>
+                            <input type="password" id="password" placeholder="********" required>
                         </div>
                         <button type="submit" class="btn btn-primary w-100 btn-3d" id="login-btn">Initialiser la session</button>
                     </form>
@@ -40,8 +40,11 @@ const Views = {
         <div class="fade-in">
             <div class="admin-tabs">
                 <button class="tab-btn active" id="tab-annonces" onclick="Admin.switchTab('annonces')">Gestion des Annonces</button>
+                <button class="tab-btn" id="tab-reviews" onclick="Admin.switchTab('reviews')">Mod√©ration des Avis</button>
                 <button class="tab-btn" id="tab-demandes" onclick="Admin.switchTab('demandes')">Demandes Clients</button>
+                <button class="tab-btn" id="tab-stats" onclick="Admin.switchTab('stats')">Statistiques Visites</button>
             </div>
+            
             <div id="section-annonces">
                 <div class="admin-panel" style="margin-bottom:2.5rem;">
                     <h3>Publier une nouvelle annonce</h3>
@@ -52,7 +55,7 @@ const Views = {
                         </div>
                         <div class="form-group">
                             <label for="contenu">Contenu de l'annonce</label>
-                            <textarea id="contenu" placeholder="DÈtails..." rows="4" required></textarea>
+                            <textarea id="contenu" placeholder="D√©tails..." rows="4" required></textarea>
                         </div>
                         <div class="form-group">
                             <label for="media">Importer une image (Optionnel)</label>
@@ -63,14 +66,50 @@ const Views = {
                     </form>
                 </div>
                 <div class="admin-list">
-                    <h3>Annonces publiÈes</h3>
+                    <h3>Annonces publi√©es</h3>
                     <div id="adminList" style="margin-top:1.5rem;"></div>
                 </div>
             </div>
+
+            <div id="section-reviews" style="display:none;">
+                <div class="admin-list">
+                    <h3>Mod√©ration des Avis Clients</h3>
+                    <div id="reviewsAdminList" style="margin-top:1.5rem;"></div>
+                </div>
+            </div>
+
             <div id="section-demandes" style="display:none;">
                 <div class="admin-list">
-                    <h3>Demandes de Devis ReÁues</h3>
+                    <h3>Demandes de Devis Re√ßues</h3>
                     <div id="requestsList" style="margin-top:1.5rem;"></div>
+                </div>
+            </div>
+
+            <div id="section-stats" style="display:none;">
+                <div class="admin-panel">
+                    <h3>Statistiques de Visites</h3>
+                    <div id="stats-summary" style="display:grid; grid-template-columns:repeat(4, 1fr); gap:1rem; margin-top:2rem;">
+                        <div class="admin-item" style="text-align:center;">
+                            <h2 id="visits-day" style="color:var(--primary)">0</h2>
+                            <p>Aujourd'hui</p>
+                        </div>
+                        <div class="admin-item" style="text-align:center;">
+                            <h2 id="visits-week" style="color:var(--primary)">0</h2>
+                            <p>Cette Semaine</p>
+                        </div>
+                        <div class="admin-item" style="text-align:center;">
+                            <h2 id="visits-month" style="color:var(--primary)">0</h2>
+                            <p>Ce Mois</p>
+                        </div>
+                        <div class="admin-item" style="text-align:center;">
+                            <h2 id="visits-year" style="color:var(--primary)">0</h2>
+                            <p>Cette Ann√©e</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="admin-panel" style="margin-top:2rem;">
+                    <h3>Derni√®res Visites</h3>
+                    <div id="visitsList" style="margin-top:1.5rem;"></div>
                 </div>
             </div>
         </div>
@@ -92,7 +131,7 @@ const Router = {
 
     renderLogin: () => {
         document.body.classList.add('login-mode');
-        subtitle.textContent = "Veuillez vous authentifier pour accÈder au portail.";
+        subtitle.textContent = "Veuillez vous authentifier pour acc√©der au portail.";
         nav.style.display = 'none';
         appContainer.innerHTML = Views.Login;
         
@@ -103,11 +142,10 @@ const Router = {
             const btn = document.getElementById('login-btn');
             const err = document.getElementById('auth-error');
             
-            btn.textContent = 'VÈrification...';
+            btn.textContent = 'V√©rification...';
             btn.disabled = true;
 
             try {
-                // VÈrification manuelle dans la table users (selon votre script SQL)
                 const res = await fetch(`${SUPABASE_URL}/rest/v1/users?email=eq.${u}&password=eq.${p}`, {
                     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
                 });
@@ -129,7 +167,7 @@ const Router = {
 
     renderDashboard: () => {
         document.body.classList.remove('login-mode');
-        subtitle.textContent = "GÈrez les annonces et consultez les demandes des clients (Supabase).";
+        subtitle.textContent = "G√©rez les annonces, les avis, les visites et consultez les demandes des clients.";
         nav.style.display = 'flex';
         appContainer.innerHTML = Views.Dashboard;
         Admin.init();
@@ -145,29 +183,49 @@ const Admin = {
             Router.navigate();
         });
 
-        document.getElementById('adminForm').addEventListener('submit', Admin.publishAnnonce);
+        const form = document.getElementById('adminForm');
+        if (form) form.addEventListener('submit', Admin.publishAnnonce);
+        
         Admin.loadAnnonces();
     },
 
     switchTab: (tab) => {
         const tAnnonces = document.getElementById('tab-annonces');
+        const tReviews = document.getElementById('tab-reviews');
         const tDemandes = document.getElementById('tab-demandes');
+        const tStats = document.getElementById('tab-stats');
+        
         const sAnnonces = document.getElementById('section-annonces');
+        const sReviews = document.getElementById('section-reviews');
         const sDemandes = document.getElementById('section-demandes');
+        const sStats = document.getElementById('section-stats');
+
+        // Reset
+        [tAnnonces, tReviews, tDemandes, tStats].forEach(t => t.classList.remove('active'));
+        [sAnnonces, sReviews, sDemandes, sStats].forEach(s => s.style.display = 'none');
 
         if (tab === 'annonces') {
-            tAnnonces.classList.add('active'); tDemandes.classList.remove('active');
-            sAnnonces.style.display = 'block'; sDemandes.style.display = 'none';
+            tAnnonces.classList.add('active'); sAnnonces.style.display = 'block';
             Admin.loadAnnonces();
+            setTimeout(() => {
+                const f = document.getElementById('adminForm');
+                if (f) f.addEventListener('submit', Admin.publishAnnonce);
+            }, 0);
+        } else if (tab === 'reviews') {
+            tReviews.classList.add('active'); sReviews.style.display = 'block';
+            Admin.loadReviews();
+        } else if (tab === 'stats') {
+            tStats.classList.add('active'); sStats.style.display = 'block';
+            Admin.loadStats();
         } else {
-            tDemandes.classList.add('active'); tAnnonces.classList.remove('active');
-            sDemandes.style.display = 'block'; sAnnonces.style.display = 'none';
+            tDemandes.classList.add('active'); sDemandes.style.display = 'block';
             Admin.loadRequests();
         }
     },
 
     loadAnnonces: async () => {
         const list = document.getElementById('adminList');
+        if (!list) return;
         list.innerHTML = '<p>Chargement...</p>';
         try {
             const res = await fetch(`${SUPABASE_URL}/rest/v1/annonces?select=*&order=created_at.desc`, {
@@ -222,15 +280,112 @@ const Admin = {
                 body: JSON.stringify({ titre, contenu, media_url: mediaUrl, media_type: file ? 'image' : null })
             });
 
-            fb.textContent = "Annonce publiÈe !"; fb.style.color = "var(--primary)";
+            fb.textContent = "Annonce publi√©e !"; fb.style.color = "var(--primary)";
             document.getElementById('adminForm').reset();
             Admin.loadAnnonces();
         } catch (e) { fb.textContent = "Erreur de publication."; fb.style.color = "var(--danger)"; }
         btn.disabled = false; btn.textContent = 'Publier l\'annonce';
     },
 
+    loadReviews: async () => {
+        const list = document.getElementById('reviewsAdminList');
+        if (!list) return;
+        list.innerHTML = '<p>Chargement...</p>';
+        try {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/reviews?select=*&order=created_at.desc`, {
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+            });
+            const data = await res.json();
+            list.innerHTML = data.length === 0 ? '<div>Aucun avis client.</div>' : '';
+            data.forEach(r => {
+                const div = document.createElement('div');
+                div.className = 'admin-item glass-panel';
+                div.style.marginBottom = '1rem'; 
+                div.style.borderLeft = r.approuve ? '4px solid var(--primary)' : '4px solid #f39c12';
+                
+                div.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <h4 style="margin:0;">${r.nom} <span style="color:#ffc107;">${'‚òÖ'.repeat(r.note)}</span></h4>
+                            <small>${new Date(r.created_at).toLocaleDateString()}</small>
+                        </div>
+                        <div style="display:flex; gap:0.5rem;">
+                            <button class="btn btn-sm ${r.approuve ? 'btn-secondary' : 'btn-primary'}" 
+                                onclick="Admin.toggleReview('${r.id}', ${!r.approuve})">
+                                ${r.approuve ? 'Cacher' : 'Approuver'}
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="Admin.deleteItem('reviews', '${r.id}')">Supprimer</button>
+                        </div>
+                    </div>
+                    <div style="margin-top:10px; font-style:italic; font-size:0.9rem;">"${r.commentaire}"</div>
+                `;
+                list.appendChild(div);
+            });
+        } catch (e) { list.innerHTML = 'Erreur de chargement avis.'; }
+    },
+
+    toggleReview: async (id, status) => {
+        try {
+            await fetch(`${SUPABASE_URL}/rest/v1/reviews?id=eq.${id}`, {
+                method: 'PATCH',
+                headers: { 
+                    'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ approuve: status })
+            });
+            Admin.loadReviews();
+        } catch (e) { alert("Erreur mod√©ration."); }
+    },
+
+    loadStats: async () => {
+        const list = document.getElementById('visitsList');
+        if (!list) return;
+        list.innerHTML = '<p>Analyse des donn√©es...</p>';
+        try {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/visits?select=*&order=created_at.desc`, {
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+            });
+            const visits = await res.json();
+            
+            const now = new Date();
+            const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            const startOfYear = new Date(now.getFullYear(), 0, 1);
+
+            const dayVisits = visits.filter(v => new Date(v.created_at) >= startOfDay).length;
+            const weekVisits = visits.filter(v => new Date(v.created_at) >= startOfWeek).length;
+            const monthVisits = visits.filter(v => new Date(v.created_at) >= startOfMonth).length;
+            const yearVisits = visits.filter(v => new Date(v.created_at) >= startOfYear).length;
+
+            document.getElementById('visits-day').textContent = dayVisits;
+            document.getElementById('visits-week').textContent = weekVisits;
+            document.getElementById('visits-month').textContent = monthVisits;
+            document.getElementById('visits-year').textContent = yearVisits;
+
+            list.innerHTML = '';
+            visits.slice(0, 20).forEach(v => {
+                const div = document.createElement('div');
+                div.className = 'admin-item glass-panel';
+                div.style.marginBottom = '0.5rem'; div.style.padding = '1rem'; div.style.fontSize = '0.85rem';
+                div.innerHTML = `
+                    <div style="display:flex; justify-content:space-between;">
+                        <span><strong>Page:</strong> ${v.page}</span>
+                        <small>${new Date(v.created_at).toLocaleString()}</small>
+                    </div>
+                    <div style="color:var(--text-muted); font-size:0.75rem; margin-top:5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                        ${v.user_agent}
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        } catch (e) { list.innerHTML = 'Erreur stats.'; }
+    },
+
     loadRequests: async () => {
         const list = document.getElementById('requestsList');
+        if (!list) return;
         list.innerHTML = '<p>Chargement...</p>';
         try {
             const res = await fetch(`${SUPABASE_URL}/rest/v1/requests?select=*&order=created_at.desc`, {
@@ -257,12 +412,23 @@ const Admin = {
 
     deleteItem: async (table, id) => {
         if (!confirm("Confirmer la suppression ?")) return;
-        await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
-            method: 'DELETE',
-            headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-        });
-        table === 'annonces' ? Admin.loadAnnonces() : Admin.loadRequests();
+        try {
+            await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
+                method: 'DELETE',
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+            });
+            if (table === 'annonces') Admin.loadAnnonces();
+            else if (table === 'reviews') Admin.loadReviews();
+            else Admin.loadRequests();
+        } catch (e) { alert("Erreur lors de la suppression."); }
     }
 };
 
-document.addEventListener('DOMContentLoaded', () => Router.navigate());
+// Initialisation
+document.addEventListener('DOMContentLoaded', () => {
+    Router.navigate();
+});
+
+// For global onclick handlers
+window.Admin = Admin;
+window.Router = Router;

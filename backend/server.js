@@ -203,6 +203,140 @@ app.delete('/api/annonces/:id', authMiddleware, async (req, res) => {
   }
 });
 
+// ===== REVIEWS (AVIS) =====
+
+// Public : Poster un avis
+app.post('/api/reviews', async (req, res) => {
+  if (!supabase) return res.status(500).json({ error: 'Supabase client not configured' });
+  const { nom, commentaire, note } = req.body;
+  
+  if (!nom || !commentaire || !note) {
+    return res.status(400).json({ error: 'Nom, commentaire et note sont obligatoires.' });
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('reviews')
+      .insert([{ nom, commentaire, note, approuve: false, created_at: new Date().toISOString() }]);
+
+    if (error) throw error;
+    res.status(201).json({ message: 'Avis envoyé avec succès. Il sera visible après modération.', data });
+  } catch (err) {
+    console.error("Error inserting review:", err);
+    res.status(500).json({ error: 'Erreur lors de l\'envoi de l\'avis' });
+  }
+});
+
+// Public : Voir les avis approuvés
+app.get('/api/reviews', async (req, res) => {
+  if (!supabase) return res.status(500).json({ error: 'Supabase client not configured' });
+  try {
+    const { data, error } = await supabase
+      .from('reviews')
+      .select('*')
+      .eq('approuve', true)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    res.status(200).json(data);
+  } catch (err) {
+    res.status(500).json({ error: 'Erreur lors de la récupération des avis' });
+  }
+});
+
+// Admin : Voir tous les avis (Protégé)
+app.get('/api/admin/reviews', authMiddleware, async (req, res) => {
+  if (!supabase) return res.status(500).json({ error: 'Supabase client not configured' });
+  try {
+    const { data, error } = await supabase
+      .from('reviews')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    res.status(200).json(data);
+  } catch (err) {
+    res.status(500).json({ error: 'Erreur lors de la récupération des avis' });
+  }
+});
+
+// Admin : Approuver/Désapprouver un avis (Protégé)
+app.patch('/api/reviews/:id', authMiddleware, async (req, res) => {
+  if (!supabase) return res.status(500).json({ error: 'Supabase client not configured' });
+  const { id } = req.params;
+  const { approuve } = req.body;
+  try {
+    const { data, error } = await supabase
+      .from('reviews')
+      .update({ approuve })
+      .eq('id', id);
+
+    if (error) throw error;
+    res.status(200).json({ message: 'Statut de l\'avis mis à jour' });
+  } catch (err) {
+    res.status(500).json({ error: 'Erreur lors de la mise à jour' });
+  }
+});
+
+// Admin : Supprimer un avis (Protégé)
+app.delete('/api/reviews/:id', authMiddleware, async (req, res) => {
+  if (!supabase) return res.status(500).json({ error: 'Supabase client not configured' });
+  const { id } = req.params;
+  try {
+    const { data, error } = await supabase.from('reviews').delete().eq('id', id);
+    if (error) throw error;
+    res.status(200).json({ message: 'Avis supprimé' });
+  } catch (err) {
+    res.status(500).json({ error: 'Erreur lors de la suppression' });
+  }
+});
+
+// ===== VISITS & STATS =====
+
+// Public : Enregistrer une visite
+app.post('/api/visits', async (req, res) => {
+  if (!supabase) return res.status(200).json({ message: 'Tracking skipped' });
+  const { page, user_agent } = req.body;
+  try {
+    await supabase.from('visits').insert([{ page, user_agent, created_at: new Date().toISOString() }]);
+    res.status(201).json({ message: 'Visit logged' });
+  } catch (err) {
+    res.status(500).json({ error: 'Tracking error' });
+  }
+});
+
+// Admin : Statistiques de visites (Protégé)
+app.get('/api/admin/stats', authMiddleware, async (req, res) => {
+  if (!supabase) return res.status(500).json({ error: 'Supabase client not configured' });
+  try {
+    const { data: visits, error } = await supabase
+      .from('visits')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    res.status(200).json(visits);
+  } catch (err) {
+    res.status(500).json({ error: 'Erreur stats' });
+  }
+});
+
+// ===== KEEP-ALIVE HEARTBEAT =====
+// Automatically pings Supabase every 24 hours to prevent project pausing
+const keepAlive = async () => {
+    if (!supabase) return;
+    try {
+        console.log("Supabase Keep-Alive Heartbeat...");
+        await supabase.from('keep_alive').update({ last_ping: new Date().toISOString() }).eq('id', 1);
+    } catch (err) {
+        console.error("Keep-Alive Failed:", err);
+    }
+};
+
+// Ping on startup and every 24 hours
+keepAlive();
+setInterval(keepAlive, 24 * 60 * 60 * 1000);
+
 app.listen(port, () => {
   console.log(`Backend EFMS API running on http://localhost:${port}`);
 });
