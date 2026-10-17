@@ -243,6 +243,17 @@ header nav {
     background: radial-gradient(ellipse at center top, var(--primary-glow) 0%, transparent 60%);
     pointer-events: none;
 }
+.banner-brand {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--primary);
+    margin: 0 auto 1rem;
+    max-width: none;
+}
+
 .page-banner h1 {
     font-size: 2.8rem;
     font-weight: 700;

@@ -2,6 +2,8 @@
 
 Les anciennes clés (`service_role` / `anon`) ont été **retirées du code client**. Elles restent potentiellement dans l’historique Git et ont pu être exposées publiquement.
 
+**État actuel :** le projet Supabase est de nouveau joignable ; le login admin fonctionne et le mot de passe a été migré en **bcrypt**. La clé `service_role` locale est **encore l’ancienne clé exposée** — à régénérer dès que possible dans le dashboard, puis à coller dans `backend/.env` (PC + hébergement).
+
 ## À faire dans le dashboard Supabase
 
 1. **Project Settings → API** : révoquer / régénérer la clé **service_role**.

@@ -779,3 +779,13 @@ body.login-mode .login-wrapper {
         grid-template-columns: 1fr !important;
     }
 }
+
+
+button.sidebar-link {
+    width: 100%;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+}

@@ -47,7 +47,7 @@ const Views = {
                             <label>Mot de passe</label>
                             <div style="position:relative;">
                                 <input type="password" id="password" placeholder="********" required style="padding-right: 80px;" autocomplete="current-password">
-                                <button type="button" id="togglePassword" onclick="Admin.togglePassword()" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:var(--brand-mint-glow, rgba(120,240,168,0.1)); border:1px solid var(--neon-green); color:var(--neon-green); padding:5px 10px; border-radius:8px; cursor:pointer; font-size:0.7rem; font-weight:800; z-index:10;">VOIR</button>
+                                <button type="button" id="togglePassword" data-action="toggle-password" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:var(--brand-mint-glow, rgba(120,240,168,0.1)); border:1px solid var(--neon-green); color:var(--neon-green); padding:5px 10px; border-radius:8px; cursor:pointer; font-size:0.7rem; font-weight:800; z-index:10;">VOIR</button>
                             </div>
                         </div>
                         <button type="submit" class="btn btn-primary w-100 btn-3d" id="login-btn">Se Connecter</button>
@@ -65,35 +65,35 @@ const Views = {
                 </div>
                 <ul class="sidebar-menu">
                     <li class="sidebar-item">
-                        <a class="sidebar-link active" id="link-stats" onclick="Admin.switchTab('stats')">
+                        <button type="button" class="sidebar-link active" id="link-stats" data-action="tab" data-tab="stats">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18M7 16V10M11 16V6M15 16V12M19 16V8"/></svg>
                             <span>Statistiques</span>
-                        </a>
+                        </button>
                     </li>
                     <li class="sidebar-item">
-                        <a class="sidebar-link" id="link-annonces" onclick="Admin.switchTab('annonces')">
+                        <button type="button" class="sidebar-link" id="link-annonces" data-action="tab" data-tab="annonces">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2v16z"/></svg>
                             <span>Annonces</span>
-                        </a>
+                        </button>
                     </li>
                     <li class="sidebar-item">
-                        <a class="sidebar-link" id="link-reviews" onclick="Admin.switchTab('reviews')">
+                        <button type="button" class="sidebar-link" id="link-reviews" data-action="tab" data-tab="reviews">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z"/></svg>
                             <span>Avis Clients</span>
-                        </a>
+                        </button>
                     </li>
                     <li class="sidebar-item">
-                        <a class="sidebar-link" id="link-requests" onclick="Admin.switchTab('requests')">
+                        <button type="button" class="sidebar-link" id="link-requests" data-action="tab" data-tab="requests">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zM22 6l-10 7L2 6"/></svg>
                             <span>Demandes</span>
-                        </a>
+                        </button>
                     </li>
                 </ul>
             </aside>
             <main class="admin-main">
                 <header class="admin-header">
                     <div style="display:flex; align-items:center; gap:15px;">
-                        <button id="mobileAdminMenuBtn" class="btn btn-secondary btn-sm" onclick="Admin.toggleMobileMenu()" style="display:none; padding:0.5rem; background:var(--neon-green); color:#000; border:none; border-radius:8px;">
+                        <button id="mobileAdminMenuBtn" class="btn btn-secondary btn-sm" data-action="toggle-mobile-menu" style="display:none; padding:0.5rem; background:var(--neon-green); color:#000; border:none; border-radius:8px;">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
                         </button>
                         <h2 id="page-title">Tableau de <span>Bord</span></h2>
@@ -103,7 +103,7 @@ const Views = {
                             <span class="user-name-text" style="font-size:0.9rem; color:var(--text-muted)"><strong>Admin</strong></span>
                             <div style="width:35px; height:35px; background:var(--neon-green); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#000; font-weight:800;">EF</div>
                         </div>
-                        <button onclick="Admin.logout()" class="btn btn-danger btn-sm" style="padding: 0.5rem; border-radius: 8px; font-weight:700;" title="Déconnexion">
+                        <button data-action="logout" class="btn btn-danger btn-sm" style="padding: 0.5rem; border-radius: 8px; font-weight:700;" title="Déconnexion">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
                         </button>
                     </div>
@@ -132,7 +132,7 @@ const Views = {
     `,
     Annonces: `
         <div style="display:flex; justify-content:flex-start; margin-bottom:3rem; margin-top:1rem;">
-            <button class="btn btn-primary" onclick="Admin.toggleAnnonceForm()" style="padding: 0.8rem 1.5rem; font-size: 0.9rem;">
+            <button class="btn btn-primary" data-action="toggle-annonce-form" style="padding: 0.8rem 1.5rem; font-size: 0.9rem;">
                 + Ajouter une nouvelle annonce
             </button>
         </div>
@@ -159,7 +159,7 @@ const Views = {
                 </div>
                 <div style="display:flex; gap:10px;">
                     <button type="submit" class="btn btn-primary" id="btn-publier" style="padding:1rem 2rem;">Publier Maintenant</button>
-                    <button type="button" class="btn btn-secondary" onclick="Admin.toggleAnnonceForm()" style="padding:1rem 2rem;">Annuler</button>
+                    <button type="button" class="btn btn-secondary" data-action="toggle-annonce-form" style="padding:1rem 2rem;">Annuler</button>
                 </div>
                 <div id="admin-feedback" style="margin-top:1rem;"></div>
             </form>
@@ -230,14 +230,57 @@ const Router = {
     renderDashboard: () => {
         document.body.classList.remove('login-mode');
         appContainer.innerHTML = Views.DashboardLayout(Views.Stats);
-        Admin.loadStats();
+        Admin.bindDashboardEvents();
+        const initial = (location.hash || '#stats').replace('#', '') || 'stats';
+        if (['stats', 'annonces', 'reviews', 'requests'].includes(initial) && initial !== 'stats') {
+            Admin.switchTab(initial);
+        } else {
+            Admin.loadStats();
+        }
     }
 };
 
 const Admin = {
+    bindDashboardEvents: () => {
+        const map = {
+            'link-stats': 'stats',
+            'link-annonces': 'annonces',
+            'link-reviews': 'reviews',
+            'link-requests': 'requests',
+        };
+        Object.entries(map).forEach(([id, tab]) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                Admin.switchTab(tab);
+            });
+        });
+        const logoutBtn = document.querySelector('[data-action="logout"]');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                Admin.logout();
+            });
+        }
+        const mobileBtn = document.getElementById('mobileAdminMenuBtn');
+        if (mobileBtn) {
+            mobileBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                Admin.toggleMobileMenu();
+            });
+        }
+    },
+
     switchTab: (tab) => {
         const content = document.getElementById('tab-content');
         const title = document.getElementById('page-title');
+        if (!content || !title) return;
+
+        if (location.hash !== `#${tab}`) {
+            history.replaceState(null, '', `#${tab}`);
+        }
 
         document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
         const activeLink = document.getElementById(`link-${tab}`);
@@ -259,6 +302,12 @@ const Admin = {
             setTimeout(() => {
                 const f = document.getElementById('adminForm');
                 if (f) f.addEventListener('submit', Admin.publishAnnonce);
+                document.querySelectorAll('[data-action="toggle-annonce-form"]').forEach((btn) => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        Admin.toggleAnnonceForm();
+                    });
+                });
             }, 0);
         } else if (tab === 'reviews') {
             title.innerHTML = 'Modération des <span>Avis</span>';
@@ -329,7 +378,7 @@ const Admin = {
                         <h4 style="margin:0;">${escapeHtml(a.titre)}</h4>
                         <small style="color:var(--neon-green)">Publiée le ${new Date(a.created_at).toLocaleDateString()}</small>
                     </div>
-                    <button class="btn btn-danger btn-sm" onclick="Admin.deleteItem('annonces', '${escapeHtml(a.id)}')">Supprimer</button>
+                    <button class="btn btn-danger btn-sm" data-action="delete" data-table="annonces" data-id="${escapeHtml(a.id)}">Supprimer</button>
                 `;
                 list.appendChild(div);
             });
@@ -386,10 +435,10 @@ const Admin = {
                             <small>${new Date(r.created_at).toLocaleDateString()}</small>
                         </div>
                         <div style="display:flex; gap:10px;">
-                            <button class="btn btn-sm ${r.approuve ? 'btn-secondary' : 'btn-primary'}" onclick="Admin.toggleReview('${escapeHtml(r.id)}', ${!r.approuve})">
+                            <button class="btn btn-sm ${r.approuve ? 'btn-secondary' : 'btn-primary'}" data-action="toggle-review" data-id="${escapeHtml(r.id)}" data-status="${!r.approuve}">
                                 ${r.approuve ? 'Masquer' : 'Approuver'}
                             </button>
-                            <button class="btn btn-danger btn-sm" onclick="Admin.deleteItem('reviews', '${escapeHtml(r.id)}')">Supprimer</button>
+                            <button class="btn btn-danger btn-sm" data-action="delete" data-table="reviews" data-id="${escapeHtml(r.id)}">Supprimer</button>
                         </div>
                     </div>
                     <p style="margin-top:15px; font-style:italic;">"${escapeHtml(r.commentaire)}"</p>
@@ -424,7 +473,7 @@ const Admin = {
                 div.id = `req-${escapeHtml(r.id)}`;
                 const preview = escapeHtml((r.message || '').substring(0, 50));
                 div.innerHTML = `
-                    <div class="request-item-summary fade-in" id="summary-${escapeHtml(r.id)}" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; padding-bottom: 0.5rem;" onclick="Admin.toggleReqDetail('${escapeHtml(r.id)}')">
+                    <div class="request-item-summary fade-in" id="summary-${escapeHtml(r.id)}" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; padding-bottom: 0.5rem;" data-action="toggle-req" data-id="${escapeHtml(r.id)}">
                         <div style="flex: 1; min-width: 0; padding-right: 15px;">
                             <h4 style="margin:0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(r.nom)} <small style="color:var(--neon-green)">(${escapeHtml(r.service || 'Devis')})</small></h4>
                             <p style="margin:5px 0 0 0; font-size:0.85rem; color:var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${preview}...</p>
@@ -438,9 +487,9 @@ const Admin = {
                             <p><strong>Véhicule:</strong> ${escapeHtml(r.vehicule || 'N/A')}</p>
                             <p style="margin-top:1rem; white-space:pre-wrap;">${escapeHtml(r.message)}</p>
                             <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:1.5rem;">
-                                <button class="btn btn-secondary" onclick="Admin.toggleReqDetail('${escapeHtml(r.id)}')">Fermer</button>
+                                <button class="btn btn-secondary" data-action="toggle-req" data-id="${escapeHtml(r.id)}">Fermer</button>
                                 <a class="btn btn-primary" href="mailto:${escapeHtml(r.email)}?subject=${encodeURIComponent('Réponse EFMS')}">Répondre</a>
-                                <button class="btn btn-danger" onclick="Admin.deleteItem('requests', '${escapeHtml(r.id)}')">Archiver</button>
+                                <button class="btn btn-danger" data-action="delete" data-table="requests" data-id="${escapeHtml(r.id)}">Archiver</button>
                             </div>
                         </div>
                     </div>
@@ -564,6 +613,46 @@ const Admin = {
         });
     }
 };
+
+
+// CSP-safe event delegation (no inline onclick)
+document.addEventListener('click', (e) => {
+    const el = e.target.closest('[data-action]');
+    if (!el) return;
+    const action = el.getAttribute('data-action');
+    if (action === 'tab') {
+        e.preventDefault();
+        Admin.switchTab(el.getAttribute('data-tab'));
+    } else if (action === 'logout') {
+        e.preventDefault();
+        Admin.logout();
+    } else if (action === 'toggle-password') {
+        e.preventDefault();
+        Admin.togglePassword();
+    } else if (action === 'toggle-mobile-menu') {
+        e.preventDefault();
+        Admin.toggleMobileMenu();
+    } else if (action === 'toggle-annonce-form') {
+        e.preventDefault();
+        Admin.toggleAnnonceForm();
+    } else if (action === 'delete') {
+        e.preventDefault();
+        Admin.deleteItem(el.getAttribute('data-table'), el.getAttribute('data-id'));
+    } else if (action === 'toggle-review') {
+        e.preventDefault();
+        const status = el.getAttribute('data-status') === 'true';
+        Admin.toggleReview(el.getAttribute('data-id'), status);
+    } else if (action === 'toggle-req') {
+        e.preventDefault();
+        Admin.toggleReqDetail(el.getAttribute('data-id'));
+    }
+});
+
+window.addEventListener('hashchange', () => {
+    if (!Router.isLoggedIn()) return;
+    const tab = (location.hash || '#stats').replace('#', '') || 'stats';
+    if (['stats', 'annonces', 'reviews', 'requests'].includes(tab)) Admin.switchTab(tab);
+});
 
 document.addEventListener('DOMContentLoaded', () => {
     Router.navigate();
