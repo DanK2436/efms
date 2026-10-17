@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="efms-api-base" content="">
     <title>EFMS | À Propos - Notre Expertise</title>
     <meta name="description" content="Découvrez l'expertise EFMS : un laboratoire d'électronique automobile indépendant spécialisé dans le diagnostic, la réparation au composant et la reprogrammation de calculateurs.">
-    <link rel="icon" type="image/jpeg" href="../assets/images/logo_efms.jpeg">
+    <link rel="icon" type="image/png" href="../assets/brand/logo-efms-centered.png">
     <link rel="stylesheet" href="../assets/css/index.css">
 </head>
 <body>
     <header id="header">
         <nav class="container">
             <a href="../index.html" class="logo">
-                <img src="../assets/images/logo_efms.jpeg" alt="EFMS Logo">
+                <img src="../assets/brand/logo-efms-horizontal.png" alt="EFMS — Electronics Full Multi Service">
                 <span class="logo-subtext">Electronics Full Multi Service</span>
             </a>
             <ul class="nav-links">
@@ -56,13 +57,13 @@
                                 </filter>
                                 <linearGradient id="laser-grad" x1="0%" y1="0%" x2="100%" y2="0%">
                                     <stop offset="0%" stop-color="transparent" />
-                                    <stop offset="50%" stop-color="#7ccf2b" />
+                                    <stop offset="50%" stop-color="#78F0A8" />
                                     <stop offset="100%" stop-color="transparent" />
                                 </linearGradient>
                             </defs>
                             
                             <!-- Structure principale du véhicule (Effet Perspective/Isométrique 3D) -->
-                            <g class="car-wireframe" fill="none" stroke="#7ccf2b" stroke-width="2.5" filter="url(#glow-green)">
+                            <g class="car-wireframe" fill="none" stroke="#78F0A8" stroke-width="2.5" filter="url(#glow-green)">
                                 <!-- Châssis de base -->
                                 <path d="M 200 350 L 150 260 L 250 160 L 550 160 L 650 260 L 600 350 Z" stroke-dasharray="14 7" opacity="0.6"/>
                                 <!-- Habitacle (Toit) -->
@@ -75,19 +76,19 @@
                                 <!-- Roues 3D Holographiques -->
                                 <circle cx="200" cy="350" r="45" stroke-width="3" opacity="0.8"/>
                                 <circle cx="200" cy="350" r="28" stroke-width="2" stroke-dasharray="8 8" class="wheel-spin"/>
-                                <circle cx="200" cy="350" r="10" fill="#7ccf2b" opacity="0.5"/>
+                                <circle cx="200" cy="350" r="10" fill="#78F0A8" opacity="0.5"/>
                                 
                                 <circle cx="600" cy="350" r="45" stroke-width="3" opacity="0.8"/>
                                 <circle cx="600" cy="350" r="28" stroke-width="2" stroke-dasharray="8 8" class="wheel-spin"/>
-                                <circle cx="600" cy="350" r="10" fill="#7ccf2b" opacity="0.5"/>
+                                <circle cx="600" cy="350" r="10" fill="#78F0A8" opacity="0.5"/>
                                 
                                 <!-- Détails de Calandre -->
                                 <path d="M 320 280 L 480 280" stroke-width="1.5" opacity="0.5"/>
                                 <path d="M 340 300 L 460 300" stroke-width="1.5" opacity="0.5"/>
                                 
                                 <!-- Phares -->
-                                <circle cx="210" cy="280" r="18" fill="rgba(124, 207, 43, 0.4)" stroke="#fff" stroke-width="2" class="headlight-pulse"/>
-                                <circle cx="590" cy="280" r="18" fill="rgba(124, 207, 43, 0.4)" stroke="#fff" stroke-width="2" class="headlight-pulse"/>
+                                <circle cx="210" cy="280" r="18" fill="rgba(120, 240, 168, 0.4)" stroke="#fff" stroke-width="2" class="headlight-pulse"/>
+                                <circle cx="590" cy="280" r="18" fill="rgba(120, 240, 168, 0.4)" stroke="#fff" stroke-width="2" class="headlight-pulse"/>
                                 
                                 <!-- Nœuds ECU & Connexions de Diagnostic -->
                                 <g class="diagnostic-nodes">
@@ -95,15 +96,15 @@
                                     <circle cx="400" cy="290" r="8" fill="#fff" class="chip-node"/>
                                     <circle cx="400" cy="290" r="16" stroke="#fff" stroke-dasharray="2 4" class="wheel-spin"/>
                                     <line x1="400" y1="290" x2="400" y2="180" stroke="#fff" stroke-width="2" stroke-dasharray="4 4" opacity="0.8"/>
-                                    <circle cx="400" cy="180" r="5" fill="#7ccf2b"/>
-                                    <path d="M 400 180 L 450 140" stroke="#7ccf2b" stroke-width="1.5"/>
+                                    <circle cx="400" cy="180" r="5" fill="#78F0A8"/>
+                                    <path d="M 400 180 L 450 140" stroke="#78F0A8" stroke-width="1.5"/>
                                     
                                     <!-- Nœuds Gauche / Droite (ABS, BSI) -->
                                     <circle cx="260" cy="220" r="7" fill="#fff" class="chip-node" style="animation-delay: 0.5s"/>
-                                    <line x1="260" y1="220" x2="220" y2="160" stroke="#7ccf2b" stroke-width="1.5" opacity="0.6"/>
+                                    <line x1="260" y1="220" x2="220" y2="160" stroke="#78F0A8" stroke-width="1.5" opacity="0.6"/>
                                     
                                     <circle cx="540" cy="220" r="7" fill="#fff" class="chip-node" style="animation-delay: 1s"/>
-                                    <line x1="540" y1="220" x2="580" y2="160" stroke="#7ccf2b" stroke-width="1.5" opacity="0.6"/>
+                                    <line x1="540" y1="220" x2="580" y2="160" stroke="#78F0A8" stroke-width="1.5" opacity="0.6"/>
                                 </g>
                             </g>
                             
@@ -147,6 +148,7 @@
                     <p>&copy; 2026 EFMS - Electronics Full Multi Service | Kolwezi, Lualaba, RDC</p>
         </div>
     </footer>
+    <script src="../assets/js/config.js"></script>
     <script src="../assets/js/index.js"></script>
 </body>
 </html>

@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="efms-api-base" content="">
     <title>EFMS | Avis Clients</title>
     <meta name="description" content="Ce que nos clients disent de nous. Laissez votre avis sur nos services d'électronique et de maintenance.">
-    <link rel="icon" type="image/jpeg" href="../assets/images/logo_efms.jpeg">
+    <link rel="icon" type="image/png" href="../assets/brand/logo-efms-centered.png">
     <link rel="stylesheet" href="../assets/css/index.css">
     <style>
         .reviews-container {
@@ -106,7 +107,7 @@
     <header id="header">
         <nav class="container">
             <a href="../index.html" class="logo">
-                <img src="../assets/images/logo_efms.jpeg" alt="EFMS Logo">
+                <img src="../assets/brand/logo-efms-horizontal.png" alt="EFMS — Electronics Full Multi Service">
             </a>
             <ul class="nav-links">
                 <li><a href="../index.html">Accueil</a></li>
@@ -176,12 +177,9 @@
         </div>
     </footer>
 
+        <script src="../assets/js/config.js"></script>
     <script>
-        const SB_URL = 'https://fgjbcvczxrzkffeqfndk.supabase.co/rest/v1';
-        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZnamJjdmN6eHJ6a2ZmZXFmbmRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxODQ3MjUsImV4cCI6MjA4OTc2MDcyNX0.uFqvuAzxIz3eznxdx4biwFjNSfvPvehJ8LOAlSelgbM';
         let currentRating = 5;
-
-        // Rating interaction
         const stars = document.querySelectorAll('.star-btn');
         const noteInput = document.getElementById('reviewNote');
 
@@ -199,42 +197,35 @@
             noteInput.value = val;
             currentRating = val;
         }
-
         updateStars(5);
-
         stars.forEach(s => {
             s.addEventListener('click', (e) => {
                 e.preventDefault();
-                const v = parseInt(s.getAttribute('data-value'));
-                updateStars(v);
+                updateStars(parseInt(s.getAttribute('data-value')));
             });
         });
 
-        // Load reviews
         async function loadReviews() {
             const list = document.getElementById('reviewsList');
             try {
-                const res = await fetch(`${SB_URL}/reviews?approuve=eq.true&select=*&order=created_at.desc`, {
-                    headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
-                });
+                const res = await fetch(EFMS.apiUrl('/api/reviews'));
                 const reviews = await res.json();
-                
-                if (reviews.length === 0) {
+                if (!Array.isArray(reviews) || reviews.length === 0) {
                     list.innerHTML = '<p>Soyez le premier à laisser un avis !</p>';
                     return;
                 }
-
                 list.innerHTML = '';
                 reviews.forEach(r => {
                     const date = new Date(r.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
                     const card = document.createElement('div');
                     card.className = 'review-card';
+                    const starsHtml = '★'.repeat(r.note) + '☆'.repeat(5 - r.note);
                     card.innerHTML = `
                         <div class="review-header">
-                            <span class="review-name">${r.nom}</span>
-                            <div class="review-stars">${'★'.repeat(r.note)}${'☆'.repeat(5-r.note)}</div>
+                            <span class="review-name">${EFMS.escapeHtml(r.nom)}</span>
+                            <div class="review-stars">${starsHtml}</div>
                         </div>
-                        <p class="review-comment">"${r.commentaire}"</p>
+                        <p class="review-comment">"${EFMS.escapeHtml(r.commentaire)}"</p>
                         <div class="review-date">Le ${date}</div>
                     `;
                     list.appendChild(card);
@@ -244,58 +235,38 @@
             }
         }
 
-        // Submit review
         document.getElementById('reviewForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
             const fb = document.getElementById('formFeedback');
-            
-            const data = {
-                nom: document.getElementById('reviewName').value,
-                commentaire: document.getElementById('reviewComment').value,
-                note: parseInt(currentRating),
-                approuve: false // Explicitly set to false (moderation)
-            };
-
             btn.disabled = true;
             btn.textContent = 'Envoi...';
-
             try {
-                const res = await fetch(`${SB_URL}/reviews`, {
+                const res = await fetch(EFMS.apiUrl('/api/reviews'), {
                     method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'apikey': SB_KEY,
-                        'Authorization': `Bearer ${SB_KEY}`,
-                        'Prefer': 'return=minimal'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         nom: document.getElementById('reviewName').value,
                         commentaire: document.getElementById('reviewComment').value,
                         note: parseInt(currentRating)
                     })
                 });
-
                 if (res.ok) {
                     fb.textContent = 'Merci ! Votre avis a été soumis et sera visible après validation.';
-                    fb.style.color = '#7ccf2b';
+                    fb.style.color = 'var(--primary)';
                     document.getElementById('reviewForm').reset();
                     updateStars(5);
                 } else {
-                    const errData = await res.json();
-                    console.error("Supabase Error:", errData);
-                    throw new Error(errData.message || 'Server error');
+                    throw new Error('Server error');
                 }
             } catch (err) {
-                console.error("Submission error:", err);
-                fb.textContent = 'Erreur lors de l\'envoi. Veuillez vérifier votre connexion ou réessayer plus tard.';
+                fb.textContent = "Erreur lors de l'envoi. Veuillez vérifier votre connexion ou réessayer plus tard.";
                 fb.style.color = 'red';
             } finally {
                 btn.disabled = false;
                 btn.textContent = 'Publier mon avis';
             }
         });
-
         window.onload = loadReviews;
     </script>
     <script src="../assets/js/index.js"></script>

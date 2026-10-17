@@ -1,73 +1,187 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const { createClient } = require('@supabase/supabase-js');
 const multer = require('multer');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(cors());
-app.use(express.json());
-
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
+const jwtSecret = process.env.JWT_SECRET;
+
+if (!jwtSecret || jwtSecret.length < 32) {
+  console.error('FATAL: JWT_SECRET must be set in .env (min 32 characters).');
+  process.exit(1);
+}
+
+const corsOrigins = (process.env.CORS_ORIGINS || 'https://efms-kolwezi.com,http://localhost:5500,http://127.0.0.1:5500,http://localhost:3000')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
+
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin || corsOrigins.includes(origin) || corsOrigins.includes('*')) {
+      return callback(null, true);
+    }
+    return callback(new Error('CORS blocked'));
+  },
+  credentials: true,
+}));
+app.use(express.json({ limit: '100kb' }));
 
 let supabase = null;
 if (supabaseUrl && supabaseKey) {
   supabase = createClient(supabaseUrl, supabaseKey);
 } else {
-  console.warn("Please provide SUPABASE_URL and SUPABASE_KEY in .env");
+  console.warn('Please provide SUPABASE_URL and SUPABASE_KEY in .env');
 }
 
-const adminUser = process.env.ADMIN_USERNAME || 'admin';
-const adminPass = process.env.ADMIN_PASSWORD || 'monmotdepasseadmin';
-const adminToken = 'efms-admin-secure-token-2026';
+const ALLOWED_MIME = new Set([
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+  'video/mp4',
+  'video/webm',
+]);
 
-// Middleware d'authentification pour sécuriser les routes Admin
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 15 * 1024 * 1024 },
+  fileFilter(_req, file, cb) {
+    if (ALLOWED_MIME.has(file.mimetype)) cb(null, true);
+    else cb(new Error('Type de fichier non autorisé'));
+  },
+});
+
+/** Simple in-memory rate limiter */
+function rateLimit({ windowMs, max, keyFn }) {
+  const hits = new Map();
+  return (req, res, next) => {
+    const key = keyFn(req);
+    const now = Date.now();
+    let bucket = hits.get(key);
+    if (!bucket || now > bucket.reset) {
+      bucket = { count: 0, reset: now + windowMs };
+      hits.set(key, bucket);
+    }
+    bucket.count += 1;
+    if (bucket.count > max) {
+      return res.status(429).json({ error: 'Trop de requêtes. Réessayez plus tard.' });
+    }
+    return next();
+  };
+}
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  keyFn: (req) => `login:${req.ip}`,
+});
+const publicWriteLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 40,
+  keyFn: (req) => `write:${req.ip}`,
+});
+
+function signAdminToken(user) {
+  return jwt.sign(
+    { sub: user.id || user.email, email: user.email, role: 'admin' },
+    jwtSecret,
+    { expiresIn: process.env.JWT_EXPIRES_IN || '8h' },
+  );
+}
+
 const authMiddleware = (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
-  if (token === adminToken) {
-    next();
-  } else {
+  const header = req.headers.authorization || '';
+  const token = header.startsWith('Bearer ') ? header.slice(7) : null;
+  if (!token) {
     return res.status(401).json({ error: 'Accès non autorisé' });
+  }
+  try {
+    req.admin = jwt.verify(token, jwtSecret);
+    return next();
+  } catch (_err) {
+    return res.status(401).json({ error: 'Session expirée ou invalide' });
   }
 };
 
-// Multer configured for memory so we can read file buffer and upload to Supabase Storage
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
+function clampStr(value, max) {
+  if (value == null) return value;
+  return String(value).slice(0, max);
+}
+
+function isBcryptHash(value) {
+  return typeof value === 'string' && /^\$2[aby]\$/.test(value);
+}
+
+async function verifyAndMaybeUpgradePassword(user, password) {
+  const stored = user.password;
+  if (!stored) return false;
+
+  if (isBcryptHash(stored)) {
+    return bcrypt.compare(password, stored);
+  }
+
+  // Legacy plaintext row: verify then upgrade hash (one-time migration).
+  const ok = stored === password;
+  if (ok && supabase && user.id) {
+    const hash = await bcrypt.hash(password, 12);
+    await supabase.from('users').update({ password: hash }).eq('id', user.id);
+  }
+  return ok;
+}
 
 // ===== LOGIN ADMIN =====
-app.post('/api/login', async (req, res) => {
+app.post('/api/login', loginLimiter, async (req, res) => {
   if (!supabase) return res.status(500).json({ error: 'Supabase client not configured' });
-  const { username, password } = req.body;
-  
+  const username = clampStr(req.body?.username, 200);
+  const password = req.body?.password;
+
+  if (!username || typeof password !== 'string' || password.length < 1 || password.length > 200) {
+    return res.status(400).json({ error: 'Identifiants invalides' });
+  }
+
   try {
     const { data, error } = await supabase
       .from('users')
-      .select('*')
+      .select('id, email, password')
       .eq('email', username)
-      .eq('password', password) // In production, use bcrypt.compare() with hashed password
-      .single();
+      .maybeSingle();
 
     if (error || !data) {
       return res.status(401).json({ error: 'Identifiants incorrects' });
     }
 
-    res.status(200).json({ token: adminToken, message: 'Login réussi' });
+    const valid = await verifyAndMaybeUpgradePassword(data, password);
+    if (!valid) {
+      return res.status(401).json({ error: 'Identifiants incorrects' });
+    }
+
+    const token = signAdminToken(data);
+    return res.status(200).json({ token, message: 'Login réussi' });
   } catch (err) {
-    res.status(500).json({ error: 'Erreur lors de la connexion' });
+    console.error('Login error:', err);
+    return res.status(500).json({ error: 'Erreur lors de la connexion' });
   }
 });
 
-// ===== DEMANDES DES UTILISATEURS (CONTACT FORM) =====
-
-// Recevoir la demande de l'utilisateur
-app.post('/api/requests', async (req, res) => {
+// ===== DEMANDES =====
+app.post('/api/requests', publicWriteLimiter, async (req, res) => {
   if (!supabase) return res.status(500).json({ error: 'Supabase client not configured' });
-  const { nom, email, telephone, vehicule, service, message } = req.body;
-  
+  const nom = clampStr(req.body?.nom, 120);
+  const email = clampStr(req.body?.email, 200);
+  const telephone = clampStr(req.body?.telephone, 40);
+  const vehicule = clampStr(req.body?.vehicule, 120);
+  const service = clampStr(req.body?.service, 80);
+  const message = clampStr(req.body?.message, 4000);
+
   if (!nom || !email || !message) {
     return res.status(400).json({ error: 'Nom, email et message sont obligatoires.' });
   }
@@ -75,17 +189,17 @@ app.post('/api/requests', async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('requests')
-      .insert([{ nom, email, telephone, vehicule, service, message, created_at: new Date().toISOString() }]);
+      .insert([{ nom, email, telephone, vehicule, service, message, created_at: new Date().toISOString() }])
+      .select();
 
     if (error) throw error;
-    res.status(201).json({ message: 'Demande enregistrée avec succès', data });
+    return res.status(201).json({ message: 'Demande enregistrée avec succès', data });
   } catch (err) {
-    console.error("Error inserting request:", err);
-    res.status(500).json({ error: 'Erreur lors de l\'enregistrement de la demande' });
+    console.error('Error inserting request:', err);
+    return res.status(500).json({ error: "Erreur lors de l'enregistrement de la demande" });
   }
 });
 
-// Admin : Voir les demandes des utilisateurs (Protégé)
 app.get('/api/requests', authMiddleware, async (req, res) => {
   if (!supabase) return res.status(500).json({ error: 'Supabase client not configured' });
   try {
@@ -95,85 +209,79 @@ app.get('/api/requests', authMiddleware, async (req, res) => {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    res.status(200).json(data);
+    return res.status(200).json(data);
   } catch (err) {
-    res.status(500).json({ error: 'Erreur lors de la récupération des demandes' });
+    return res.status(500).json({ error: 'Erreur lors de la récupération des demandes' });
   }
 });
 
-// Admin : Marquer une demande comme lue ou supprimée (Protégé)
 app.delete('/api/requests/:id', authMiddleware, async (req, res) => {
   if (!supabase) return res.status(500).json({ error: 'Supabase client not configured' });
-  const { id } = req.params;
   try {
-    const { data, error } = await supabase.from('requests').delete().eq('id', id);
+    const { error } = await supabase.from('requests').delete().eq('id', req.params.id);
     if (error) throw error;
-    res.status(200).json({ message: 'Demande supprimée' });
+    return res.status(200).json({ message: 'Demande supprimée' });
   } catch (err) {
-    res.status(500).json({ error: 'Erreur lors de la suppression' });
+    return res.status(500).json({ error: 'Erreur lors de la suppression' });
   }
 });
 
 // ===== ANNONCES =====
+app.post('/api/annonces', authMiddleware, (req, res) => {
+  upload.single('media')(req, res, async (uploadErr) => {
+    if (uploadErr) {
+      return res.status(400).json({ error: uploadErr.message || 'Upload invalide' });
+    }
+    if (!supabase) return res.status(500).json({ error: 'Supabase client not configured' });
 
-// Admin : Poster une annonce (texte + media) (Protégé)
-app.post('/api/annonces', authMiddleware, upload.single('media'), async (req, res) => {
-  if (!supabase) return res.status(500).json({ error: 'Supabase client not configured' });
-  
-  const { titre, contenu } = req.body;
-  if (!titre || !contenu) {
-    return res.status(400).json({ error: 'Titre et contenu sont obligatoires.' });
-  }
-
-  let mediaUrl = null;
-  let mediaType = null;
-
-  try {
-    if (req.file) {
-      const fileExt = req.file.originalname.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-      const contentType = req.file.mimetype;
-      
-      // Upload to supabase storage bucket "annonces-media"
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('annonces-media')
-        .upload(fileName, req.file.buffer, {
-          contentType: contentType,
-        });
-
-      if (uploadError) throw uploadError;
-
-      // Get public URL
-      const { data: publicUrlData } = supabase.storage
-        .from('annonces-media')
-        .getPublicUrl(fileName);
-        
-      mediaUrl = publicUrlData.publicUrl;
-      mediaType = contentType.startsWith('video/') ? 'video' : 'image';
+    const titre = clampStr(req.body?.titre, 200);
+    const contenu = clampStr(req.body?.contenu, 8000);
+    if (!titre || !contenu) {
+      return res.status(400).json({ error: 'Titre et contenu sont obligatoires.' });
     }
 
-    const newAnnonce = {
-      titre,
-      contenu,
-      media_url: mediaUrl,
-      media_type: mediaType,
-      created_at: new Date().toISOString()
-    };
+    let mediaUrl = null;
+    let mediaType = null;
 
-    const { data, error } = await supabase
-      .from('annonces')
-      .insert([newAnnonce]);
+    try {
+      if (req.file) {
+        const ext = (req.file.originalname.split('.').pop() || 'bin').replace(/[^a-zA-Z0-9]/g, '').slice(0, 8);
+        const fileName = `${Date.now()}-${crypto.randomBytes(8).toString('hex')}.${ext || 'bin'}`;
 
-    if (error) throw error;
-    res.status(201).json({ message: 'Annonce publiée avec succès', data });
+        const { error: uploadError } = await supabase.storage
+          .from('annonces-media')
+          .upload(fileName, req.file.buffer, { contentType: req.file.mimetype });
 
-  } catch (err) {
-    console.error("Error creating annonce:", err);
-    res.status(500).json({ error: 'Erreur lors de la publication de l\'annonce' });
-  }
+        if (uploadError) throw uploadError;
+
+        const { data: publicUrlData } = supabase.storage
+          .from('annonces-media')
+          .getPublicUrl(fileName);
+
+        mediaUrl = publicUrlData.publicUrl;
+        mediaType = req.file.mimetype.startsWith('video/') ? 'video' : 'image';
+      }
+
+      const { data, error } = await supabase
+        .from('annonces')
+        .insert([{
+          titre,
+          contenu,
+          media_url: mediaUrl,
+          media_type: mediaType,
+          created_at: new Date().toISOString(),
+        }])
+        .select();
+
+      if (error) throw error;
+      return res.status(201).json({ message: 'Annonce publiée avec succès', data });
+    } catch (err) {
+      console.error('Error creating annonce:', err);
+      return res.status(500).json({ error: "Erreur lors de la publication de l'annonce" });
+    }
+  });
 });
 
-// Public : Voir les annonces
 app.get('/api/annonces', async (req, res) => {
   if (!supabase) return res.status(500).json({ error: 'Supabase client not configured' });
   try {
@@ -183,68 +291,66 @@ app.get('/api/annonces', async (req, res) => {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    res.status(200).json(data);
+    return res.status(200).json(data);
   } catch (err) {
-    res.status(500).json({ error: 'Erreur lors de la récupération des annonces' });
+    return res.status(500).json({ error: 'Erreur lors de la récupération des annonces' });
   }
 });
 
-// Admin : Supprimer une annonce (Protégé)
 app.delete('/api/annonces/:id', authMiddleware, async (req, res) => {
   if (!supabase) return res.status(500).json({ error: 'Supabase client not configured' });
-  const { id } = req.params;
   try {
-    // Ideally delete media from storage too, skipping for MVP
-    const { data, error } = await supabase.from('annonces').delete().eq('id', id);
+    const { error } = await supabase.from('annonces').delete().eq('id', req.params.id);
     if (error) throw error;
-    res.status(200).json({ message: 'Annonce supprimée' });
+    return res.status(200).json({ message: 'Annonce supprimée' });
   } catch (err) {
-    res.status(500).json({ error: 'Erreur lors de la suppression' });
+    return res.status(500).json({ error: 'Erreur lors de la suppression' });
   }
 });
 
-// ===== REVIEWS (AVIS) =====
-
-// Public : Poster un avis
-app.post('/api/reviews', async (req, res) => {
+// ===== REVIEWS =====
+app.post('/api/reviews', publicWriteLimiter, async (req, res) => {
   if (!supabase) return res.status(500).json({ error: 'Supabase client not configured' });
-  const { nom, commentaire, note } = req.body;
-  
-  if (!nom || !commentaire || !note) {
-    return res.status(400).json({ error: 'Nom, commentaire et note sont obligatoires.' });
+  const nom = clampStr(req.body?.nom, 120);
+  const commentaire = clampStr(req.body?.commentaire, 2000);
+  const note = Number(req.body?.note);
+
+  if (!nom || !commentaire || !Number.isFinite(note) || note < 1 || note > 5) {
+    return res.status(400).json({ error: 'Nom, commentaire et note (1-5) sont obligatoires.' });
   }
 
   try {
     const { data, error } = await supabase
       .from('reviews')
-      .insert([{ nom, commentaire, note, approuve: false, created_at: new Date().toISOString() }]);
+      .insert([{ nom, commentaire, note, approuve: false, created_at: new Date().toISOString() }])
+      .select();
 
     if (error) throw error;
-    res.status(201).json({ message: 'Avis envoyé avec succès. Il sera visible après modération.', data });
+    return res.status(201).json({ message: 'Avis envoyé avec succès. Il sera visible après modération.', data });
   } catch (err) {
-    console.error("Error inserting review:", err);
-    res.status(500).json({ error: 'Erreur lors de l\'envoi de l\'avis' });
+    console.error('Error inserting review:', err);
+    return res.status(500).json({ error: "Erreur lors de l'envoi de l'avis" });
   }
 });
 
-// Public : Voir les avis approuvés
 app.get('/api/reviews', async (req, res) => {
   if (!supabase) return res.status(500).json({ error: 'Supabase client not configured' });
   try {
+    const limit = Math.min(Number(req.query.limit) || 50, 100);
     const { data, error } = await supabase
       .from('reviews')
       .select('*')
       .eq('approuve', true)
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .limit(limit);
 
     if (error) throw error;
-    res.status(200).json(data);
+    return res.status(200).json(data);
   } catch (err) {
-    res.status(500).json({ error: 'Erreur lors de la récupération des avis' });
+    return res.status(500).json({ error: 'Erreur lors de la récupération des avis' });
   }
 });
 
-// Admin : Voir tous les avis (Protégé)
 app.get('/api/admin/reviews', authMiddleware, async (req, res) => {
   if (!supabase) return res.status(500).json({ error: 'Supabase client not configured' });
   try {
@@ -254,58 +360,52 @@ app.get('/api/admin/reviews', authMiddleware, async (req, res) => {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    res.status(200).json(data);
+    return res.status(200).json(data);
   } catch (err) {
-    res.status(500).json({ error: 'Erreur lors de la récupération des avis' });
+    return res.status(500).json({ error: 'Erreur lors de la récupération des avis' });
   }
 });
 
-// Admin : Approuver/Désapprouver un avis (Protégé)
 app.patch('/api/reviews/:id', authMiddleware, async (req, res) => {
   if (!supabase) return res.status(500).json({ error: 'Supabase client not configured' });
-  const { id } = req.params;
-  const { approuve } = req.body;
+  const approuve = Boolean(req.body?.approuve);
   try {
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('reviews')
       .update({ approuve })
-      .eq('id', id);
+      .eq('id', req.params.id);
 
     if (error) throw error;
-    res.status(200).json({ message: 'Statut de l\'avis mis à jour' });
+    return res.status(200).json({ message: "Statut de l'avis mis à jour" });
   } catch (err) {
-    res.status(500).json({ error: 'Erreur lors de la mise à jour' });
+    return res.status(500).json({ error: 'Erreur lors de la mise à jour' });
   }
 });
 
-// Admin : Supprimer un avis (Protégé)
 app.delete('/api/reviews/:id', authMiddleware, async (req, res) => {
   if (!supabase) return res.status(500).json({ error: 'Supabase client not configured' });
-  const { id } = req.params;
   try {
-    const { data, error } = await supabase.from('reviews').delete().eq('id', id);
+    const { error } = await supabase.from('reviews').delete().eq('id', req.params.id);
     if (error) throw error;
-    res.status(200).json({ message: 'Avis supprimé' });
+    return res.status(200).json({ message: 'Avis supprimé' });
   } catch (err) {
-    res.status(500).json({ error: 'Erreur lors de la suppression' });
+    return res.status(500).json({ error: 'Erreur lors de la suppression' });
   }
 });
 
-// ===== VISITS & STATS =====
-
-// Public : Enregistrer une visite
-app.post('/api/visits', async (req, res) => {
+// ===== VISITS =====
+app.post('/api/visits', publicWriteLimiter, async (req, res) => {
   if (!supabase) return res.status(200).json({ message: 'Tracking skipped' });
-  const { page, user_agent } = req.body;
+  const page = clampStr(req.body?.page, 300) || '/';
+  const user_agent = clampStr(req.body?.user_agent, 400) || '';
   try {
     await supabase.from('visits').insert([{ page, user_agent, created_at: new Date().toISOString() }]);
-    res.status(201).json({ message: 'Visit logged' });
+    return res.status(201).json({ message: 'Visit logged' });
   } catch (err) {
-    res.status(500).json({ error: 'Tracking error' });
+    return res.status(500).json({ error: 'Tracking error' });
   }
 });
 
-// Admin : Statistiques de visites (Protégé)
 app.get('/api/admin/stats', authMiddleware, async (req, res) => {
   if (!supabase) return res.status(500).json({ error: 'Supabase client not configured' });
   try {
@@ -315,25 +415,22 @@ app.get('/api/admin/stats', authMiddleware, async (req, res) => {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    res.status(200).json(visits);
+    return res.status(200).json(visits);
   } catch (err) {
-    res.status(500).json({ error: 'Erreur stats' });
+    return res.status(500).json({ error: 'Erreur stats' });
   }
 });
 
-// ===== KEEP-ALIVE HEARTBEAT =====
-// Automatically pings Supabase every 24 hours to prevent project pausing
 const keepAlive = async () => {
-    if (!supabase) return;
-    try {
-        console.log("Supabase Keep-Alive Heartbeat...");
-        await supabase.from('keep_alive').update({ last_ping: new Date().toISOString() }).eq('id', 1);
-    } catch (err) {
-        console.error("Keep-Alive Failed:", err);
-    }
+  if (!supabase) return;
+  try {
+    console.log('Supabase Keep-Alive Heartbeat...');
+    await supabase.from('keep_alive').update({ last_ping: new Date().toISOString() }).eq('id', 1);
+  } catch (err) {
+    console.error('Keep-Alive Failed:', err);
+  }
 };
 
-// Ping on startup and every 24 hours
 keepAlive();
 setInterval(keepAlive, 24 * 60 * 60 * 1000);
 

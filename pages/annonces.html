@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="efms-api-base" content="">
     <title>EFMS | Annonces &amp; Actualités</title>
     <meta name="description" content="Consultez les dernières annonces, promotions et actualités d'EFMS - Electronics Full Multi Service.">
-    <link rel="icon" type="image/jpeg" href="../assets/images/logo_efms.jpeg">
+    <link rel="icon" type="image/png" href="../assets/brand/logo-efms-centered.png">
     <link rel="stylesheet" href="../assets/css/index.css">
 </head>
 <body>
     <header id="header">
         <nav class="container">
             <a href="../index.html" class="logo">
-                <img src="../assets/images/logo_efms.jpeg" alt="EFMS Logo">
+                <img src="../assets/brand/logo-efms-horizontal.png" alt="EFMS — Electronics Full Multi Service">
             </a>
             <ul class="nav-links">
                 <li><a href="../index.html">Accueil</a></li>
@@ -50,72 +51,45 @@
         </div>
     </footer>
 
+        <script src="../assets/js/config.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             const listContainer = document.getElementById('announcementsList');
-            const SB_URL = 'https://fgjbcvczxrzkffeqfndk.supabase.co/rest/v1';
-            const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZnamJjdmN6eHJ6a2ZmZXFmbmRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxODQ3MjUsImV4cCI6MjA4OTc2MDcyNX0.uFqvuAzxIz3eznxdx4biwFjNSfvPvehJ8LOAlSelgbM';
-
             try {
                 listContainer.innerHTML = '<p style="text-align:center;">Chargement des annonces...</p>';
-                const res = await fetch(`${SB_URL}/annonces?select=*&order=created_at.desc`, {
-                    headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
-                });
-                if (!res.ok) throw new Error("Server Error");
-                let annonces = await res.json();
-                
+                const res = await fetch(EFMS.apiUrl('/api/annonces'));
+                if (!res.ok) throw new Error('Server Error');
+                const annonces = await res.json();
                 listContainer.innerHTML = '';
-                if (annonces.length === 0) {
+                if (!annonces.length) {
                     listContainer.innerHTML = '<div class="empty-state"><h3>Aucune annonce pour le moment</h3><p>Revenez bientôt pour découvrir nos dernières actualités et promotions.</p></div>';
                 } else {
                     annonces.forEach((annonce, i) => {
                         const dateObj = new Date(annonce.created_at);
                         const formattedDate = dateObj.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-                        
                         const card = document.createElement('div');
                         card.className = 'announcement-card';
-                        
-                        // Add animation delay based on index
                         card.style.opacity = '0';
                         card.style.transform = 'translateY(20px)';
                         card.style.transition = 'all 0.6s ease';
-                        setTimeout(() => {
-                            card.style.opacity = '1';
-                            card.style.transform = 'translateY(0)';
-                        }, i * 100);
-
+                        setTimeout(() => { card.style.opacity = '1'; card.style.transform = 'translateY(0)'; }, i * 100);
                         let mediaHtml = '';
                         if (annonce.media_url) {
+                            const safeUrl = EFMS.escapeHtml(annonce.media_url);
                             if (annonce.media_type === 'video') {
-                                mediaHtml = `
-                                    <div style="margin-top: 1rem; border-radius: 8px; overflow: hidden;">
-                                        <video src="${annonce.media_url}" controls style="width: 100%; max-height: 400px; display: block; background: #000;"></video>
-                                    </div>
-                                `;
+                                mediaHtml = `<div style="margin-top: 1rem; overflow: hidden;"><video src="${safeUrl}" controls style="width: 100%; max-height: 400px; display: block; background: #000;"></video></div>`;
                             } else {
-                                mediaHtml = `
-                                    <div style="margin-top: 1rem; border-radius: 8px; overflow: hidden;">
-                                        <img src="${annonce.media_url}" alt="${annonce.titre}" style="width: 100%; max-height: 400px; object-fit: contain; display: block; border: 1px solid rgba(255,255,255,0.1);">
-                                    </div>
-                                `;
+                                mediaHtml = `<div style="margin-top: 1rem; overflow: hidden;"><img src="${safeUrl}" alt="${EFMS.escapeHtml(annonce.titre)}" style="width: 100%; max-height: 400px; object-fit: contain; display: block; border: 1px solid rgba(255,255,255,0.1);"></div>`;
                             }
                         }
-
                         card.innerHTML = `
                             <div style="padding: 2rem;">
-                                <h3>${annonce.titre}</h3>
+                                <h3>${EFMS.escapeHtml(annonce.titre)}</h3>
                                 <div class="announcement-date" style="color:var(--primary); font-size:0.9rem; margin-bottom:1rem; font-weight:bold;">Publié le ${formattedDate}</div>
-                                <p style="white-space: pre-wrap; line-height: 1.6;">${annonce.contenu}</p>
+                                <p style="white-space: pre-wrap; line-height: 1.6;">${EFMS.escapeHtml(annonce.contenu)}</p>
                             </div>
                             ${mediaHtml}
                         `;
-                        // Remove default bottom padding if media exists
-                        if (annonce.media_url) {
-                            card.style.paddingBottom = "0";
-                            card.style.borderBottomLeftRadius = "0";
-                            card.style.borderBottomRightRadius = "0";
-                        }
-                        
                         listContainer.appendChild(card);
                     });
                 }

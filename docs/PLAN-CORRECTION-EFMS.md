@@ -8,7 +8,9 @@ Skills agents : `.cursor/skills/efms-brand`, `efms-security`, `efms-site-edit`
 
 ## 1. Synthèse
 
-Le site est déjà en thème sombre (bon alignement), mais la couleur primaire actuelle (`#7ccf2b`, vert citron) et les typos (`Inter` / `Outfit`) ne correspondent pas au mint officiel (`#78F0A8`) ni à la typo géométrique du guide. Côté sécurité, plusieurs failles critiques bloquent toute mise en production : clé **service_role** Supabase exposée côté client, auth admin factice, mots de passe en clair.
+**Lots 0 et 1 appliqués** (oct 2026) : secrets retirés du client, admin via API JWT, tokens mint `#78F0A8` + Montserrat + logos brand.  
+Reste **manuel** : rotation des clés Supabase (voir `docs/SECURITY-ROTATION.md`).  
+Lots suivants : hash bcrypt complet / RLS audit (2), hardening CSP (5), allègement hero (partie design restante).
 
 ---
 
@@ -79,24 +81,25 @@ Le site est déjà en thème sombre (bon alignement), mais la couleur primaire a
 
 ## 4. Plan d’exécution recommandé
 
-| Ordre | Lot | Contenu | Skill |
-| --- | --- | --- | --- |
-| 0 | Urgence sécu | Révocation clé + retirer secrets du client | `efms-security` |
-| 1 | Tokens design | CSS variables + polices + logo | `efms-brand` |
-| 2 | Auth backend | bcrypt, JWT, middleware, login unique | `efms-security` |
-| 3 | Admin refactor | router.js → API backend uniquement | `efms-site-edit` |
-| 4 | Pages publiques | hero, nav, footer, pages secondaires | `efms-brand` + `efms-site-edit` |
-| 5 | Hardening | rate-limit, upload, CSP, CORS | `efms-security` |
-| 6 | QA | lint visuel + smoke API + checklist sécu | `efms-site-edit` |
+| Ordre | Lot | Contenu | Skill | Statut |
+| --- | --- | --- | --- | --- |
+| 0 | Urgence sécu | Secrets hors client + API JWT + admin via backend | `efms-security` | **Fait** (rotation dashboard = manuel) |
+| 1 | Tokens design | CSS mint, Montserrat, logos brand | `efms-brand` | **Fait** |
+| 2 | Auth backend | bcrypt upgrade legacy + JWT | `efms-security` | Partiel |
+| 3 | Admin refactor | router.js → API backend uniquement | `efms-site-edit` | **Fait** (avec lot 0) |
+| 4 | Pages publiques | alléger hero, taglines, polish | `efms-brand` | À faire |
+| 5 | Hardening | CSP / helmet (rate-limit + upload partiels) | `efms-security` | Partiel |
+| 6 | QA | smoke API + checklist sécu | `efms-site-edit` | À faire |
 
-Ne pas fusionner lot 1 (design cosmétique) avant lot 0 si le site est déjà public : la clé service_role reste le risque n°1.
+Rotation manuelle des clés : `docs/SECURITY-ROTATION.md`.
 
 ---
 
 ## 5. Critères de done
 
-- Aucune clé `service_role` / secret dans le dépôt ou le bundle client.
-- Admin inaccessible sans JWT valide côté serveur.
-- Variables CSS = tokens marque ; logo mint hexagone visible en header.
-- Formulaires publics passent uniquement par l’API backend (URL de prod configurable).
-- Checklist skill `efms-security` entièrement cochée.
+- [x] Aucune clé `service_role` / secret dans le bundle client actuel
+- [x] Admin accessible seulement avec JWT signé (`JWT_SECRET`)
+- [x] Variables CSS = tokens marque ; logo brand en header
+- [x] Formulaires publics → API backend (`meta efms-api-base`)
+- [ ] Rotation clés dans le dashboard Supabase (manuel)
+- [ ] Checklist skill `efms-security` 100 % (CSP / historique Git)
