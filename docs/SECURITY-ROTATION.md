@@ -29,3 +29,8 @@ node scripts/hash-password.js "MotDePasseFort!"
 ```
 
 Quand tous les comptes sont hashés, passer `REJECT_PLAINTEXT_PASSWORDS=1` dans `.env`.
+
+
+## PC local
+
+Les clés sur ta machine (`D:\\Sites_web\\Efms`) : voir `docs/SETUP-WINDOWS.md`.

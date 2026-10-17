@@ -8,9 +8,8 @@ Skills agents : `.cursor/skills/efms-brand`, `efms-security`, `efms-site-edit`
 
 ## 1. Synthèse
 
-**Lots 0 et 1 appliqués** (oct 2026) : secrets retirés du client, admin via API JWT, tokens mint `#78F0A8` + Montserrat + logos brand.  
-Reste **manuel** : rotation des clés Supabase (voir `docs/SECURITY-ROTATION.md`).  
-Lots suivants : hash bcrypt complet / RLS audit (2), hardening CSP (5), allègement hero (partie design restante).
+**Lots 0 → 6 appliqués** (oct 2026) : sécu client, JWT/bcrypt, tokens marque, hero brand-first, helmet + CSP.  
+Reste **manuel** : rotation des clés Supabase + hasher les mots de passe admin en base (`backend/scripts/hash-password.js`, puis `REJECT_PLAINTEXT_PASSWORDS=1`).
 
 ---
 
@@ -101,5 +100,7 @@ Rotation manuelle des clés : `docs/SECURITY-ROTATION.md`.
 - [x] Admin accessible seulement avec JWT signé (`JWT_SECRET`)
 - [x] Variables CSS = tokens marque ; logo brand en header
 - [x] Formulaires publics → API backend (`meta efms-api-base`)
+- [x] Helmet + CSP meta pages + `/api/health`
 - [ ] Rotation clés dans le dashboard Supabase (manuel)
-- [ ] Checklist skill `efms-security` 100 % (CSP / historique Git)
+- [ ] Passwords admin tous en bcrypt + `REJECT_PLAINTEXT_PASSWORDS=1`
+- [ ] Nettoyage historique Git des anciennes clés (si dépôt public)
