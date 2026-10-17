@@ -1,0 +1,21 @@
+/**
+ * EFMS brand tokens — source of truth for the redesign.
+ * Apply by mapping these into assets/css/index.css and admin/css/admin.css.
+ * See .cursor/skills/efms-brand/SKILL.md
+ */
+:root {
+  --brand-mint: #78F0A8;
+  --brand-mint-dim: #70E098;
+  --brand-mint-soft: #7FF6AC;
+  --brand-mint-glow: rgba(120, 240, 168, 0.18);
+  --brand-mint-glow-strong: rgba(120, 240, 168, 0.32);
+  --brand-black: #000000;
+  --brand-surface: #0A0A0A;
+  --brand-surface-2: #121212;
+  --brand-border: rgba(120, 240, 168, 0.22);
+  --brand-text: #F5F7F6;
+  --brand-text-muted: #9AA3A0;
+  --font-display: "Montserrat", sans-serif;
+  --font-body: "Montserrat", sans-serif;
+  --tracking-tagline: 0.28em;
+}
