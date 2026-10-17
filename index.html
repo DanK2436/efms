@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="efms-api-base" content="">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https: blob:; media-src 'self' https: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; connect-src 'self' http://localhost:3000 https:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     
     <!-- TITRE ET META DE BASE (Optimisation Principale Google) -->
@@ -90,128 +91,20 @@
         </nav>
     </header>
 
-    <!-- HERO -->
+    <!-- HERO — brand first: marque, 1 titre, 1 phrase, CTAs, visuel plein cadre -->
     <section id="hero">
+        <div class="hero-media" role="img" aria-label="Diagnostic électronique automobile EFMS"></div>
         <div class="hero-overlay"></div>
-        <div class="hero-particles">
-            <span></span><span></span><span></span><span></span><span></span>
-            <span></span><span></span><span></span>
-        </div>
-        <!-- Background Car Animation -->
-        <div class="hero-bg-animation">
-            <svg viewBox="0 0 500 300" fill="none" xmlns="http://www.w3.org/2000/svg" class="driving-car-svg">
-                <!-- Road -->
-                <rect x="0" y="210" width="500" height="90" fill="#111315"/>
-                <line x1="0" y1="210" x2="500" y2="210" stroke="var(--primary)" stroke-width="2" opacity="0.4"/>
-                <!-- Road dashes -->
-                <g class="road-dashes">
-                    <rect x="0" y="250" width="40" height="4" rx="2" fill="var(--primary)" opacity="0.3"/>
-                    <rect x="70" y="250" width="40" height="4" rx="2" fill="var(--primary)" opacity="0.3"/>
-                    <rect x="140" y="250" width="40" height="4" rx="2" fill="var(--primary)" opacity="0.3"/>
-                    <rect x="210" y="250" width="40" height="4" rx="2" fill="var(--primary)" opacity="0.3"/>
-                    <rect x="280" y="250" width="40" height="4" rx="2" fill="var(--primary)" opacity="0.3"/>
-                    <rect x="350" y="250" width="40" height="4" rx="2" fill="var(--primary)" opacity="0.3"/>
-                    <rect x="420" y="250" width="40" height="4" rx="2" fill="var(--primary)" opacity="0.3"/>
-                    <rect x="490" y="250" width="40" height="4" rx="2" fill="var(--primary)" opacity="0.3"/>
-                </g>
-                <!-- Speed lines -->
-                <line x1="30" y1="155" x2="90" y2="155" stroke="var(--primary)" stroke-width="1" opacity="0.15" class="speed-line sl1"/>
-                <line x1="10" y1="170" x2="85" y2="170" stroke="var(--primary)" stroke-width="1.5" opacity="0.2" class="speed-line sl2"/>
-                <line x1="40" y1="185" x2="100" y2="185" stroke="var(--primary)" stroke-width="1" opacity="0.12" class="speed-line sl3"/>
-                <line x1="20" y1="140" x2="70" y2="140" stroke="var(--primary)" stroke-width="0.8" opacity="0.1" class="speed-line sl4"/>
-                <!-- Car Group -->
-                <g class="car-driving">
-                    <path d="M130 180 L140 180 L145 200 L370 200 L375 180 L385 180 L390 210 L125 210 Z" fill="#1a1e22" stroke="var(--primary)" stroke-width="1.5"/>
-                    <path d="M175 180 L200 135 L310 130 L350 165 L370 180 Z" fill="#1a1e22" stroke="var(--primary)" stroke-width="1.5"/>
-                    <path d="M205 175 L220 145 L290 142 L310 175 Z" fill="rgba(120,240,168,0.08)" stroke="var(--primary)" stroke-width="1" opacity="0.7"/>
-                    <path d="M185 175 L198 148 L215 147 L200 175 Z" fill="rgba(120,240,168,0.05)" stroke="var(--primary)" stroke-width="0.8" opacity="0.5"/>
-                    <path d="M385 190 L480 160 L480 200 L385 200 Z" fill="url(#headlightGrad)" class="headlight-beam"/>
-                    <rect x="382" y="185" width="8" height="18" rx="2" fill="var(--primary)" opacity="0.8"/>
-                    <rect x="128" y="188" width="6" height="12" rx="2" fill="#ff3333" opacity="0.7" class="taillight"/>
-                    <circle cx="340" cy="210" r="22" fill="#0b0d0e" stroke="var(--primary)" stroke-width="2"/>
-                    <circle cx="340" cy="210" r="14" fill="none" stroke="var(--primary)" stroke-width="1" opacity="0.3"/>
-                    <circle cx="340" cy="210" r="4" fill="var(--primary)"/>
-                    <g class="wheel-spin" style="transform-origin: 340px 210px;">
-                        <line x1="340" y1="196" x2="340" y2="224" stroke="var(--primary)" stroke-width="0.8" opacity="0.3"/>
-                        <line x1="326" y1="210" x2="354" y2="210" stroke="var(--primary)" stroke-width="0.8" opacity="0.3"/>
-                        <line x1="330" y1="200" x2="350" y2="220" stroke="var(--primary)" stroke-width="0.8" opacity="0.3"/>
-                        <line x1="350" y1="200" x2="330" y2="220" stroke="var(--primary)" stroke-width="0.8" opacity="0.3"/>
-                    </g>
-                    <circle cx="175" cy="210" r="22" fill="#0b0d0e" stroke="var(--primary)" stroke-width="2"/>
-                    <circle cx="175" cy="210" r="14" fill="none" stroke="var(--primary)" stroke-width="1" opacity="0.3"/>
-                    <circle cx="175" cy="210" r="4" fill="var(--primary)"/>
-                    <g class="wheel-spin" style="transform-origin: 175px 210px;">
-                        <line x1="175" y1="196" x2="175" y2="224" stroke="var(--primary)" stroke-width="0.8" opacity="0.3"/>
-                        <line x1="161" y1="210" x2="189" y2="210" stroke="var(--primary)" stroke-width="0.8" opacity="0.3"/>
-                        <line x1="165" y1="200" x2="185" y2="220" stroke="var(--primary)" stroke-width="0.8" opacity="0.3"/>
-                        <line x1="185" y1="200" x2="165" y2="220" stroke="var(--primary)" stroke-width="0.8" opacity="0.3"/>
-                    </g>
-                    <line x1="260" y1="145" x2="260" y2="195" stroke="var(--primary)" stroke-width="0.8" opacity="0.3"/>
-                    <rect x="265" y="168" width="15" height="3" rx="1.5" fill="var(--primary)" opacity="0.4"/>
-                </g>
-                <!-- Scan beam -->
-                <rect x="160" y="0" width="200" height="130" fill="url(#scanBeamGrad)" class="scan-beam-rect"/>
-                <line x1="160" y1="130" x2="360" y2="130" stroke="var(--primary)" stroke-width="1.5" opacity="0.3" class="scan-beam-line"/>
-                <!-- Diagnostic labels -->
-                <g class="diag-label dl1">
-                    <rect x="400" y="90" width="70" height="24" rx="6" fill="rgba(11,13,14,0.85)" stroke="var(--primary)" stroke-width="1"/>
-                    <text x="435" y="106" text-anchor="middle" fill="var(--primary)" font-size="9" font-weight="700">ENGINE ✓</text>
-                </g>
-                <g class="diag-label dl2">
-                    <rect x="400" y="120" width="55" height="24" rx="6" fill="rgba(11,13,14,0.85)" stroke="var(--primary)" stroke-width="1"/>
-                    <text x="427" y="136" text-anchor="middle" fill="var(--primary)" font-size="9" font-weight="700">ABS ✓</text>
-                </g>
-                <g class="diag-label dl3">
-                    <rect x="30" y="90" width="65" height="24" rx="6" fill="rgba(11,13,14,0.85)" stroke="var(--primary)" stroke-width="1"/>
-                    <text x="62" y="106" text-anchor="middle" fill="var(--primary)" font-size="9" font-weight="700">ECU OK</text>
-                </g>
-                <defs>
-                    <linearGradient id="headlightGrad" x1="385" y1="190" x2="480" y2="190">
-                        <stop offset="0%" stop-color="rgba(120,240,168,0.25)"/>
-                        <stop offset="100%" stop-color="rgba(120,240,168,0)"/>
-                    </linearGradient>
-                    <linearGradient id="scanBeamGrad" x1="260" y1="0" x2="260" y2="130">
-                        <stop offset="0%" stop-color="rgba(120,240,168,0)"/>
-                        <stop offset="100%" stop-color="rgba(120,240,168,0.06)"/>
-                    </linearGradient>
-                </defs>
-            </svg>
-        </div>
         <div class="container hero-content">
             <div class="hero-text-content hero-centered" data-reveal>
-                <div class="hero-badge">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                    Spécialiste Électronique Auto — Kolwezi, RDC
-                </div>
-                <h1 class="hero-title">Diagnostic &amp; Réparation<br><span>Électronique Automobile</span></h1>
-                <p class="hero-subtitle">Calibrage d'injecteurs, reprogrammation de clés et diagnostic complet — toutes marques, à Kolwezi.</p>
+                <p class="hero-brand">EFMS</p>
+                <p class="hero-tagline">Electronics Full Multi Service</p>
+                <p class="hero-tagline hero-tagline-sub">Diagnostic &amp; Contrôle Auto</p>
+                <h1 class="hero-title">L’électronique automobile,<br><span>maîtrisée à Kolwezi</span></h1>
+                <p class="hero-subtitle">Diagnostic, programmation de clés et réparation de calculateurs — toutes marques.</p>
                 <div class="hero-btns">
-                    <a href="pages/services.html" class="btn btn-primary">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-                        Nos Prestations
-                    </a>
-                    <a href="pages/contact.html" class="btn btn-secondary">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                        Demander un Devis
-                    </a>
-                </div>
-            </div>
-            <div class="hero-stats" data-reveal>
-                <div class="hero-stat">
-                    <h3>6</h3>
-                    <p>Années d'expérience</p>
-                </div>
-                <div class="hero-stat">
-                    <h3>500+</h3>
-                    <p>Véhicules traités</p>
-                </div>
-                <div class="hero-stat">
-                    <h3>98%</h3>
-                    <p>Taux de satisfaction</p>
-                </div>
-                <div class="hero-stat">
-                    <h3>24h</h3>
-                    <p>Délai moyen</p>
+                    <a href="pages/contact.html" class="btn btn-primary">Demander un devis</a>
+                    <a href="pages/services.html" class="btn btn-outline">Voir les services</a>
                 </div>
             </div>
         </div>
@@ -545,7 +438,11 @@
             <div class="footer-grid">
                 <div class="footer-brand">
                     <img src="assets/brand/logo-efms-horizontal.png" alt="EFMS — Electronics Full Multi Service" class="footer-logo">
-                    <p>EFMS - Electronics Full Multi Service. Votre expert en diagnostic et réparation d'électronique automobile à Kolwezi, Province du Lualaba, RDC.</p>
+                    <p class="footer-taglines">
+                        <span>Electronics Full Multi Service</span>
+                        <span>Diagnostic &amp; Contrôle Auto</span>
+                    </p>
+                    <p>Expert en diagnostic et réparation d'électronique automobile à Kolwezi, Lualaba, RDC.</p>
                     <div class="footer-social">
                         <a href="#" aria-label="Facebook" title="Facebook">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>

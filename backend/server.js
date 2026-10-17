@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -13,6 +14,7 @@ const port = process.env.PORT || 3000;
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const jwtSecret = process.env.JWT_SECRET;
+const rejectPlaintextPasswords = process.env.REJECT_PLAINTEXT_PASSWORDS === '1';
 
 if (!jwtSecret || jwtSecret.length < 32) {
   console.error('FATAL: JWT_SECRET must be set in .env (min 32 characters).');
@@ -24,6 +26,11 @@ const corsOrigins = (process.env.CORS_ORIGINS || 'https://efms-kolwezi.com,http:
   .map((s) => s.trim())
   .filter(Boolean);
 
+app.disable('x-powered-by');
+app.use(helmet({
+  contentSecurityPolicy: false, // API JSON only; static site hosts its own CSP meta if needed
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+}));
 app.use(cors({
   origin(origin, callback) {
     if (!origin || corsOrigins.includes(origin) || corsOrigins.includes('*')) {
@@ -34,6 +41,10 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.json({ limit: '100kb' }));
+
+app.get('/api/health', (_req, res) => {
+  res.status(200).json({ ok: true, service: 'efms-api' });
+});
 
 let supabase = null;
 if (supabaseUrl && supabaseKey) {
@@ -129,13 +140,20 @@ async function verifyAndMaybeUpgradePassword(user, password) {
     return bcrypt.compare(password, stored);
   }
 
+  if (rejectPlaintextPasswords) {
+    console.warn(`Login blocked: plaintext password for user ${user.email}. Run scripts/hash-password.js and update Supabase.`);
+    return false;
+  }
+
   // Legacy plaintext row: verify then upgrade hash (one-time migration).
-  const ok = stored === password;
-  if (ok && supabase && user.id) {
+  const matched = stored.length === password.length
+    && crypto.timingSafeEqual(Buffer.from(stored), Buffer.from(password));
+
+  if (matched && supabase && user.id) {
     const hash = await bcrypt.hash(password, 12);
     await supabase.from('users').update({ password: hash }).eq('id', user.id);
   }
-  return ok;
+  return matched;
 }
 
 // ===== LOGIN ADMIN =====
@@ -155,16 +173,21 @@ app.post('/api/login', loginLimiter, async (req, res) => {
       .eq('email', username)
       .maybeSingle();
 
+    // Constant-ish delay to slow credential stuffing
+    const delay = new Promise((r) => setTimeout(r, 250 + Math.floor(Math.random() * 200)));
+
     if (error || !data) {
+      await delay;
       return res.status(401).json({ error: 'Identifiants incorrects' });
     }
 
     const valid = await verifyAndMaybeUpgradePassword(data, password);
+    await delay;
     if (!valid) {
       return res.status(401).json({ error: 'Identifiants incorrects' });
     }
 
-    const token = signAdminToken(data);
+    const token = signAdminToken({ id: data.id, email: data.email });
     return res.status(200).json({ token, message: 'Login réussi' });
   } catch (err) {
     console.error('Login error:', err);

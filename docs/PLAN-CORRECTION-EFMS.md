@@ -85,11 +85,11 @@ Lots suivants : hash bcrypt complet / RLS audit (2), hardening CSP (5), allègem
 | --- | --- | --- | --- | --- |
 | 0 | Urgence sécu | Secrets hors client + API JWT + admin via backend | `efms-security` | **Fait** (rotation dashboard = manuel) |
 | 1 | Tokens design | CSS mint, Montserrat, logos brand | `efms-brand` | **Fait** |
-| 2 | Auth backend | bcrypt upgrade legacy + JWT | `efms-security` | Partiel |
-| 3 | Admin refactor | router.js → API backend uniquement | `efms-site-edit` | **Fait** (avec lot 0) |
-| 4 | Pages publiques | alléger hero, taglines, polish | `efms-brand` | À faire |
-| 5 | Hardening | CSP / helmet (rate-limit + upload partiels) | `efms-security` | Partiel |
-| 6 | QA | smoke API + checklist sécu | `efms-site-edit` | À faire |
+| 2 | Auth backend | bcrypt upgrade + `REJECT_PLAINTEXT_PASSWORDS` + hash script | `efms-security` | **Fait** |
+| 3 | Admin refactor | router.js → API backend uniquement | `efms-site-edit` | **Fait** |
+| 4 | Pages publiques | hero brand-first + taglines footer | `efms-brand` | **Fait** |
+| 5 | Hardening | helmet + CSP meta + rate-limit + upload | `efms-security` | **Fait** |
+| 6 | QA | smoke `/api/health` + scan secrets client | `efms-site-edit` | **Fait** |
 
 Rotation manuelle des clés : `docs/SECURITY-ROTATION.md`.
 

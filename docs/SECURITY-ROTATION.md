@@ -19,3 +19,13 @@ Configurer sur le site :
 ```
 
 ou reverse-proxy `/api` vers le backend Express.
+
+## Mots de passe admin (bcrypt)
+
+```bash
+cd backend
+node scripts/hash-password.js "MotDePasseFort!"
+# Copier le hash dans Supabase : UPDATE users SET password = '$2b$...' WHERE email = '...';
+```
+
+Quand tous les comptes sont hashés, passer `REJECT_PLAINTEXT_PASSWORDS=1` dans `.env`.
